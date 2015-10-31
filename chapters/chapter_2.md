@@ -94,9 +94,11 @@ var c = a + b;
 var a = 2;
 ```
 
-In the above example, `c` will still equal 2 even after we change the value of a. If JavaScript were truly reactive, the value of `c` would be automatically be in sync with the value of `a` and `b`. This is a very simple example. If you want to learn more about reactivity take a look at this excellent [resource](https://gist.github.com/staltz/868e7e9bc2a7b8c1f754).
+In the above example, `c` will still equal 2 even after we change the value of `a`. If JavaScript were truly reactive, the value of `c` would be automatically be in sync with the value of `a` and `b`. This is a very simple example. If you want to learn more about reactivity take a look at this excellent [resource](https://gist.github.com/staltz/868e7e9bc2a7b8c1f754).
 
-Needless to say, this isn't a mistake or bug in the language, but it does present an obstacle if we want true reactive JavaScript in the DOM. In order to achieve this, most JavaScript frameworks have implemented some form of data binding. This is a non-trivial abstraction on top of plain old JavaScript, and like all abstractions, these implementations leak. The difference is how leaky they are, when do they leak, and how easy is it to spot and fix the leak.
+Needless to say, this is not necessarily a mistake or bug in the language, but it does present an obstacle if we want true reactive JavaScript in the DOM. In order to achieve this, most JavaScript frameworks implement some form of data binding. 
+
+This is not a trivial abstraction on top of JavaScript, and like all abstractions, these implementations leak. The difference is how leaky they are, when do they leak, and how easy is it to spot and fix the leak.
 
 Pretty much most JavaScript frameworks use Key-Value Observation (KVO) for data binding (most prominently Ember and Meteor) with Angular being the main outlier at the moment, with uses dirty checking. We won't go into too much detail into these systems but suffice it to say that anyone who's worked with these frameworks know of the pain in KVO of having to know the internal implementation details of other object resulting in tight coupling or the pain of working with `$scope`, `$watch`, and `$apply` in Angular. These are not simple abstractions, and they often break in mysterious ways that are not intuitive. You have to learn a lot about the framework's data binding system and how to fix it. And often times, the way to fix it is to go around the data binding system all together, which is it's own nightmare. In other words, you need to be deeply familiar with the frameworks and their pain points.
 
