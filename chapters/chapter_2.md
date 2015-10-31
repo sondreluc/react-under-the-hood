@@ -1,8 +1,10 @@
 # Chapter 2: Key Concepts
 
-Now we are going to take a deep dive into some of React's core concepts from an intellectual standpoint. There will be very little actual code involded, just enough to get a point across. Once we have a better understand about React's way of thinking, we can get started building our Star Trek video game. By then you should have a better understanding of how React works under the hood.
+Now we are going to take a deep dive into some of React's core concepts from an intellectual standpoint. There will be little actual code involved, just enough to get a point across. Once we have a better understand about React's way of thinking, we can get started building our Star Trek video game. By then we should have a better understanding of how React works under the hood.
 
 ## How Does React Views the World?
+
+React goes against many things we have considered to be best practices in front-end web development. As mentioned in the last chapter, React sees single page applications as a series of nested UI components. Therefore, React is primarily concerned with the presentation layer of applications. 
 
 React goes against many of the things that we've considered best practices in front-end web development. For starters, React asserts that single page applications are really a series of nested UI components. Therefore, React is primarily concerned with the presentation layer of applications. In other words, it just cares about rendering UI components to the user. For many, this leads them to conclude React is simple the "V" in "MVC", which is somewhat misleading. While you _could_ make React the view layer of an MVC architecture, that would negate many of the benefits of using React. In essence, React sees a world very differently from most client-side MVC frameworks/libraries. In fact, its philosophy mostly rejects MVC/MV* in the browser. Why is that and what should replace it?
 
