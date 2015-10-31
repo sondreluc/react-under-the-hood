@@ -155,10 +155,9 @@ Components should strive to contain as little state as possible. However, someti
 
 React receive `props` from a parent component. By relying on props, a component essentially becomes an idempotent function. React sees components as functions, therefore it forces data to only flow from parent to child. Just like a function, data should flow into it as arguments. Data always flow just one way in React from parent to child.
 
-Unidirectional data flow limits the messages and data being passed inside the system, making it easier to debug. Since data can only pass from parent to child, it is easy to trace the flow of data in your system. When you come across a bug, first you look at the component you think is causing the bug. If you can't find it there, you turn to it's parent and so on until you find the culprit. In an MVC pattern, 
+Unidirectional data flow limits the messages and data being passed inside the system, making it easier to debug. Since data can only pass from parent to child, it is easy to trace the flow of data in your system. When you come across a bug, first you look at the component you think is causing the bug. If you can't find it there, you turn to it's parent and so on until you find the culprit. In an MVC pattern, since messages travel all over the place, it is much more difficult to figure out the flow of your data.
 
-
-Let's take a look at an example of `state`, `props`, and unidirectional data flow.
+Let's take a look at an example of `state`, `props`, and unidirectional data flow. You can follow along here: [Demo](http://codepen.io/anon/pen/OyzowP).
 
 ```javascript
 var AnimalRescue = React.createClass({
