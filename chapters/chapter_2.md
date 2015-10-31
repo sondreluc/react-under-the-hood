@@ -149,6 +149,12 @@ By the time you are finished typing "Mittens", React would have triggered numero
 
 ## Data in React
 
+In addition to the Virtual DOM, React treats data differently from other JavaScript projects like Angular or Ember. React separates data that changes over time (state) from data that stays the same. It does this via two concepts: `state` and `props`. `state` is data that will change over time such as user interaction 
+
+Components should strive to contain as little state as possible but when a component needs 
+
+Components manage their own internal `state` and either 
+
 In addition to the Virtual DOM, React treats data very differently from other JavaScript frameworks. React separates data that changes over time (state) from immutable data that stays the same. React calls these two concepts `state` and `props`. In React, components manage their own internal `state` and receive `props` from the parents, or pass in `props` to their children. React enforces a unidirectional data flow from parent to child. A React component passes data to their child components as `props` and child components cannot pass data to their parents.
 
 Unlike other frameworks where data and messages fly in multiple directions over time and are always mutable, React's design streamlines the flow of messages as well as separating things that change from things that don't.
