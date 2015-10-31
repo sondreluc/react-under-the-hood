@@ -110,38 +110,40 @@ React fits this description almost perfectly. It's data binding system is not pe
 
 ### Virtual DOM
 
-React's approach to managing state and complexity via data binding relies on much simpler abstractions: the Virtual DOM and a unidirectional data flow.
+React's approach data binding relies on much simpler abstractions: the Virtual DOM. Essentially, React's Virtual DOM system abstracts the DOM by keeping a virtual representation of the DOM in memory and whenever the data model changes, React triggers a re-render of the components that rely on that data.
 
-Essentially, React's Virtual DOM system abstracts the DOM by keeping a virtual representation of the DOM in memory and whenever the data model changes, React triggers a re-render of the components that rely on that data. At a high level, what React does is give you tools to describe what your component should look like at any given time. So, whenever the state changes, React will begin re-rendering the component that contains that state, diff the previous virtual representation of the DOM with the new virtual representation, and only updates the DOM with what actually changed. You as a developer don't need to worry about how this really works, you just need to describe what your component looks like and let React know when your state has changed. That being said, we will dive deeper into React's Virtual DOM diff algorithm shortly.
+At a high level, React give you tools to describe what your component should look like at any given time. So, whenever the state changes, React will begin re-rendering the component that contains that state, diff the previous virtual representation of the DOM with the new virtual representation, and only update the DOM with what actually changed. You as a developer do not need to worry about how this really works, you just need to describe what your component looks like and let React know when your state has changed. That being said, we will dive deeper into React's Virtual DOM diff algorithm shortly.
 
-Let's look at a very simple example and see how this works in more detail. You can play with the live demo here: [Demo](http://codepen.io/anon/pen/VvrqxO)
+Let's look at a very simple example and see how this works in detail. You can play the code here: [Demo](http://codepen.io/anon/pen/VvrqxO)
 
 ```javascript
-var Cats = React.createClass({
+var Cat = React.createClass({
   getInitialState: function() {
-    return { catCount: 0 };
+    return { name: null };
   },
   
   render: function() {
     return (
       <div>
-        <p>The current cat count is: {this.state.catCount}</p>
-        <input type="text" onChange={this.updateCount} />
+        <p>Your cat's name is: {this.state.name}</p>
+        <input type="text" onChange={this.updateName} />
       </div>
     );
   },
 
-  updateCount: function(event) {
-    this.setState({catCount: Number(event.target.value)});
+  updateName: function(event) {
+    this.setState({name: event.target.value});
   }
 });
-
-React.render(<Cats />, document.getElementById('cats'));
 ```
 
-You can figure out what this simple example does yourself without much need for explanation. First, we are setting the initial state of the component in `getInitialState`. You can think of this method like an initializer for the component, where we are setting the default value of `catCount` to 0. Then we're describing what our component will look like in the `render` method. Then the input field changes `updateCount` will be called. `updateCount` calls a special React method called `setstate`, which if `render` is the heart of a component, `setState` is the brain. `setState` will update the value of the data in the components state, which in turn will trigger a re-render of the app. 
+You can figure out what this simple example does yourself without much need for explanation. First, we are setting the initial state of the component in `getInitialState`. You can think of this method like a constructor function for the component, where we are setting the default value of `name` to null. `getInitialState` is not required for every React component, just like a constructor function is not always needed to create a class in Object Oriented Programming.
 
-So, if you type in the number "9" into the input field, `updateCount` will be called, which will grab that value and set the new state with `setState`. React will then compare then figure out what the new component will look like, diff that with what is in the Virtual DOM, and do just the minimum DOM mutations necessary to reach the new state of the UI.
+Then we are describing what our component will look like in the `render` method. We can access the current state of the component via `this.state`. Inside of `render`, we are returning the current state of the cat name via `this.state.name`. We are also rendering an input field to the user to change the name of the cat.
+
+Notice we are adding an event handler to the input field using `onChange={this.updateName}`. Whenever there is a change to the input field, `updateName` will be called. `updateName` calls a special React method called `setstate`. If `render` can be considered the heart of a component, `setState` can be considered the brain. `setState` will update the value of the data in the components state, which in turn will trigger a re-render of the app. 
+
+So, if you type in the letter "M" into the input field, `updateName` will be called, which will grab that value from the input field and update the state of the cat name with `setState`. React will then call `render` on `Cat` again with the new state. It will create two virtual representations of the DOM: the old DOM and the new DOM. It will batch all updates together and figure out the most optimal DOM mutations necessary to reach the new state of the UI.
 
 While this seems like a novel approach to data binding, it's actually not unique -- it is just new to web development. React took a look at another area of software development, the gaming industry, and brought those ideas to the web. Games have a lot in common with web based user interfaces. They're packed full of state (number of weapons, vehicles, sounds, events based on user interaction, etc ...) and tons of behavior that needs to be constantly recalculated and re-render the player at 60 frames per second. On top of that, you need to do all of this with tough hardware constraints and with consistent performance despite those hardware limitations. 
 
