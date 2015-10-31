@@ -8,41 +8,41 @@ React goes against many things we have considered to be best practices in front-
 
 For many, this leads them to conclude React is simply the "V" in "MVC". This is somewhat misleading. While you _could_ make React the view layer of an MVC architecture, that would negate many of the benefits of using React. It's philosophy mostly rejects MVC/MV* in the browser. Why is that and what should replace it?
 
-MVC is actually an excellent idea for the server. Given the success of MVC on the server, it's no wonder why we have been trying to use it on the browser. As browser JavaScript engines started getting better and with the rise of excellent user experiences found in native applications, we increasingly started pushing data and behavior from the server to the client. This was a great step forward for the web, but as web developers this lead us scrambling to find ways to work in the hostile browser environment. So, we took the ideas that served us well on the server and applied them to the browser.
+MVC is actually an excellent idea for the server. Given the success of MVC on the server, it's no wonder why we have been trying to use it on the browser. As browser JavaScript engines started getting better along with the rise of excellent user experiences found in native applications, we increasingly started pushing data and behavior from the server to the client. This was a great step forward for the web, but as web developers this lead us scrambling to find ways to work in the hostile browser environment. So, we took the ideas that served us well on the server and applied them to the browser.
 
 This was an improvement from what we had before, much like how jQuery took us forward as a community as well. And while it sounded like a good idea to use MVC to separate concerns on the browser, in practice that environment is very different from the server. Many mistakes in history have been made by well intentioned people making decisions based on what seemed like a good idea at the time -- and at the time, MVC in the browser seemed like a good idea. After all, it worked well on the server. What could go wrong? The problem with forcing MVC on the browser is that we're trying to separate concerns that are inextricably linked.
 
-MVC makes sense in the stateless environment of HTTP and webservers but it makes less sense in single page applications that are full of state. The server is concerned with requests and responses, but the browser is a user interface with a lot of events and user interaction. MVC in the browser tries to separate things that actually belong together, which in turn obscures the state of an application.
+MVC makes sense in the stateless environment of HTTP and webservers but it makes less sense in single page applications. That's because unlike the server environment, the browser is full of state. The server is concerned with requests and responses, but the browser is a user interface with a lot of events and user interaction. MVC on the browser tries to separate things that actually belong together, which in turn obscures the state of an application.
 
-What this means is when bugs arise (and they will), it can be very difficult trying to determine exactly what is the cause of the problem. For example in Angular, when there is a bug it's relatively very difficult to determine its root cause since the state is shares across many different places. You're not sure if the bug is in a controller, or a view, or a model, or a directive, or a directive controller, etc ... . It becomes difficult to track where messages are being passed in an Angular app, because as an Angular app grows, the number of directions messages are being passed grows exponentially. 
-
-React's way of thinking is very different. Let's start talking about some of the design decisions React made which make it really awesome.
+What this means is when bugs arise (and they will), it can be very difficult to determine exactly what is the cause of the problem. For example in Angular, when there is a bug it is relatively difficult to determine its root cause. That's because state is shared among many different parts of an MVC architecture. You're not sure if the bug is in a controller, a view, a model, a directive, a directive controller, etc. It becomes difficult to track where messages are being passed in an Angular app, because as an Angular app grows, the number of directions messages can travel grows exponentially.
 
 ### How To Separate Concerns: Write Components, Not Templates
 
 React thinks that you should stop writing templates: you should be writing components. This means we need to stop separating out HTML from our JavaScript.
 
-This goes against everything we've come to believe in the JavaScript community. In fact, the above statement is enough for many to declare a fatwa. For just a moment, let's set aside dogma and analyze the issue as if approaching it for the first time. React asserts that markup and display logic are inextricably linked. Whenever you change markup, you're bound to affect the behaviour you wrote in JavaScript. And when you change the behavior, you're undoubtable going to update the markup.
+This goes against everything we have come to believe in the JavaScript community. In fact, the above statement is enough for many to dismiss React. For just a moment, let us set aside dogma and analyze the issue as if approaching it for the first time.
 
-By trying to separate UI logic between templates and controllers/view-models, we're not separating concerns -- were separating technologies. That's not what separation of concerns is about. Separation of concerns is really about reducing coupling while increasing cohesion. Templates and controllers have implicit agreements among themselves meaning if you change one, you have to change the other, which leads to cascading changes. This is coupling. So by separating markup and display logic, you're not reducing coupling, you're actually increasing it throughout your system. Meanwhile, you're decreasing the amount of cohesion in your application. Display logic and markup are very cohesive; they're both concerned with showing the UI. By separating them, you're reducing cohesion and the developer's ability to reason about the structure of the application.
+React asserts markup and display logic are inextricably linked. Whenever you change markup, you are bound to affect the behavior you wrote in JavaScript. And when you change the behavior, you are undoubtedly going to update the markup. That is not always the case, but that is a concern. This looks a lot like tight coupling in a system. By trying to separate a UI between templates and controllers/view-models, we are not separating concerns -- were separating technologies. 
 
-By creating small components concerned with rendering just a small part of your UI instead of writing templates, you can a much better job of separating concerns yourself, because frameworks tend to do a poor job of separating concerns for you. On top of that, small components are reusable, composable, and above all, unit testable. Essentially, components are idempotent functions that when given a set of data will always return the same UI result, making them much easier to test.
+Before we continue, we should define what "separation of concerns" means. Separation of concerns is really about reducing coupling while simultaneously increasing cohesion. Coupling is how much pieces of a system depend on each other, while cohesion do pieces individual pieces of a system belong together. Templates and controllers have implicit agreements among themselves meaning if you change one, might have to change the other, leading to cascading changes. This is coupling. So by separating markup and display logic, you are actually increasing coupling throughout your system. Meanwhile, you are also decreasing the amount of cohesion in your application. Display logic and markup are very cohesive -- they are both concerned with showing the UI to the user. By separating them, you are reducing cohesion and the developer's ability to reason about the structure of the application.
+
+To truly separate concerns, you should be writing components. Frameworks cannot separate concerns for you. You can do a much better job of separating concerns yourself. You seperate concerns by creating small components responsible for rendering just a small piece of the UI. Displaying a piece of the UI is now encapsulated in one place. Such a component is both decoupled from the rest of your system and cohesive.
+
+In addition, small components are reusable, composable, and above all, unit testable. Essentially, components are idempotent functions that when given a set of data will always return the same UI result, making them much easier to test. React essentially introduced functional programing to the UI.
 
 Let's take a look at what a component looks like in React. Here's a small example.
 
-```
+```javascript
 var HelloWorld = React.createClass({
   render: function() {
     return <h1 className="header">Hello, World!</h1>
   }
 });
-
-React.render(<HelloWorld />, document.getElementById('element-that-is-already-on-dom'));
 ```
 
-The first thing you'll probably notice is the JSX syntax in the JavaScript. It's just syntactic sugar on top of plain JavaScript that makes it easy to declare markup. When compiled to regular JavaScript, it will look like this:
+The first thing you will most likely notice is what looks like HTML in our JavaScript. It is not actually HTML. This is JSX. It is syntactic sugar on top of plain JavaScript that makes it easy to declare markup. When compiled to regular JavaScript, it will look like this:
 
-```
+```javascript
 var HelloWorld = React.createClass({
   render: function() {
     return React.createElement('h1', {className: 'header'}, 'Hello, World!')
@@ -50,15 +50,15 @@ var HelloWorld = React.createClass({
 });
 ```
 
-JSX is not needed to work with React, but using it makes it much easier to create components that are semantic and easy to understand at a glance. These days, most JavaScript projects are using some kind of build system and perhaps using that build system to use ES2015, so adding a small compilation step for JSX is trivial in comparison.
+JSX is not needed to work with React, but using it makes it much easier to create components that are semantic and easy to understand at a glance. These days, most JavaScript projects are using some kind of build system and perhaps using that build system to use ES2015, so adding a small compilation step for JSX is trivial in comparison. In fact, Babel.js supports JSX.
 
-We are passing a `render` method in an object to `React.createClass` to create the `HelloWorld` component. `render` is the most important method in React. `render` gets called every time the React components gets rendered to HTML.
+We are passing a `render` method in an object to `React.createClass` to create the `HelloWorld` component. `render` is the most important method in React. It is the heart of a React component. `render` gets called every time the React components gets rendered to HTML.
 
-The `h1` is not a DOM node: it is an in memory representation of a DOM node that will eventually be used to create an in memory representation of the current state of the DOM, the Virtual DOM. More about that in a minute.
+It is important to point out that `render` does not return an `h1` -- it will return an in memory representation of a DOM node that will eventually be used to create an in memory representation of the current state of the DOM, the Virtual DOM. More about that in a minute.
 
-Now that we have this component, we can reuse our component elsewhere:
+Now that we have this component, we can reuse it elsewhere:
 
-```
+```javascript
 var Header = React.createClass({
   render: function() {
     return (
@@ -71,11 +71,11 @@ var Header = React.createClass({
 });
 ```
 
-Now that we have a `HelloWorld` component, we can use it anywhere we like. Above we created a new `Header` component that is reusing the `HelloWorld` component. No need for partials or any other complicated error prone templating abstraction. Here we have the accessibility of templates with the power of JavaScript. You can write your whole app in JavaScript and function calls that look like markup, allowing you to clearly refactor without worrying about breaking your templates of vice versa.
+Above we created a new `Header` component that is reusing the `HelloWorld` component. Instead of using a template partial, we can simply reuse components anywhere we like. We have the accessibility of templates with the power of JavaScript. You can write your whole app in JavaScript and function calls that look like markup, allowing you to clearly refactor without worrying about breaking your templates or vice versa.
 
-But this is still a pretty small example without any data, state, or behavior. Let's dive into how React thinks about all those things
+But this is still a pretty small example without any data, state, or behavior. Let's dive into how React thinks about all those things.
 
-### All Data Binding Abstractions Leak
+### Data Binding
 
 User interfaces are very difficult to build due to the amount of state found in it. State is the root of all evil. All this state in user interfaces intertwines to create a complex system that is very difficult for humans to understand.
 
