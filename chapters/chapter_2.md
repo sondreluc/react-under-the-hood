@@ -16,7 +16,7 @@ MVC makes sense in the stateless environment of HTTP and webservers but it makes
 
 What this means is when bugs arise (and they will), it can be very difficult to determine exactly what is the cause of the problem. For example in Angular, when there is a bug it is relatively difficult to determine its root cause. That's because state is shared among many different parts of an MVC architecture. You're not sure if the bug is in a controller, a view, a model, a directive, a directive controller, etc. It becomes difficult to track where messages are being passed in an Angular app, because as an Angular app grows, the number of directions messages can travel grows exponentially.
 
-### How To Separate Concerns: Write Components, Not Templates
+## How To Separate Concerns: Write Components, Not Templates
 
 React thinks that you should stop writing templates: you should be writing components. This means we need to stop separating out HTML from our JavaScript.
 
@@ -75,7 +75,7 @@ Above we created a new `Header` component that is reusing the `HelloWorld` compo
 
 But this is still a pretty small example without any data, state, or behavior. Let's dive into how React thinks about all those things.
 
-### Data Binding
+## Data Binding
 
 User interfaces are very difficult to build due to the amount of state found in it. State is the root of all evil. All this state in user interfaces intertwines to create a complex system that is very difficult for humans to understand.
 
@@ -108,7 +108,7 @@ This is far from ideal. The ideal data binding system tries to stick to plain ol
 
 React fits this description almost perfectly. It's data binding system is not perfect, but those leaks are very well understood and predictable.
 
-### Virtual DOM
+## Virtual DOM
 
 React's approach data binding relies on much simpler abstractions: the Virtual DOM. Essentially, React's Virtual DOM system abstracts the DOM by keeping a virtual representation of the DOM in memory and whenever the data model changes, React triggers a re-render of the components that rely on that data.
 
