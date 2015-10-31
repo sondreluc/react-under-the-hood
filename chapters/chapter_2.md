@@ -149,17 +149,14 @@ By the time you are finished typing "Mittens", React would have triggered numero
 
 ## Data in React
 
-In addition to the Virtual DOM, React treats data differently from other JavaScript projects like Angular or Ember. React separates data that changes over time (state) from data that stays the same. It does this via two concepts: `state` and `props`. `state` is data that will change over time such as user interaction 
+In addition to the Virtual DOM, React treats data differently from other JavaScript projects like Angular or Ember. React separates data that changes over time (state) from data that stays the same. It does this via two concepts: `state` and `props`. `state` is data that will change over time such as user interaction.
 
 Components should strive to contain as little state as possible. However, sometimes a component needs to respond to external events such as user interaction, a server request, or the passage of time. For that kind of data, components should keep that in `state`. For data that will not change, components should keep that in `props`.
 
-React receive `props` from a parent component. By relying on props, a component essentially becomes an idempotent function. React sees components as functions, therefore it forces data to only flow from parent to child. Just like a function, data should flow into it as arguments. 
+React receive `props` from a parent component. By relying on props, a component essentially becomes an idempotent function. React sees components as functions, therefore it forces data to only flow from parent to child. Just like a function, data should flow into it as arguments. Data always flow just one way in React from parent to child.
 
-In addition to the Virtual DOM, React treats data very differently from other JavaScript frameworks. React separates data that changes over time (state) from immutable data that stays the same. React calls these two concepts `state` and `props`. In React, components manage their own internal `state` and receive `props` from the parents, or pass in `props` to their children. React enforces a unidirectional data flow from parent to child. A React component passes data to their child components as `props` and child components cannot pass data to their parents.
+Unidirectional data flow limits the messages and data being passed inside the system, making it easier to debug. Since data can only pass from parent to child, it is easy to trace the flow of data in your system. When you come across a bug, first you look at the component you think is causing the bug. If you can't find it there, you turn to it's parent and so on until you find the culprit. In an MVC pattern, 
 
-Unlike other frameworks where data and messages fly in multiple directions over time and are always mutable, React's design streamlines the flow of messages as well as separating things that change from things that don't.
-
-Unidirectional data flow limits the messages and data being passed to the system, making it easy to debug. Since data can only pass from parent to child, it's easy to trace the flow of data in your system. In addition, since data is passed in to components only from a parent via props, you can treat your components as idempotent functions that given a set of data will always return the same result. As you can imagine, this makes unit testing your components much easier.
 
 Let's take a look at an example of `state`, `props`, and unidirectional data flow.
 
