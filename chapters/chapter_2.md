@@ -85,7 +85,7 @@ So how do we as programmers master state in user interfaces? Traditionally, we h
 
 Data binding is one of many great ideas to come from the 1970's but in JavaScript it is not perfect. The problem with data binding in JavaScript is that it is a polyfill for reactive programming in the DOM. What do we mean by that?
 
-Reactive programming is a little difficult to grasp at first, but it is basically programming with asynchronous data streams. Unfortunately, JavaScript is not actually reactive. Take a look at a very simple example:
+Reactive programming deserves it's own book, so we will not talk about it too much in this book. Reactive programming is a little difficult to grasp at first, but it is basically programming with asynchronous data streams. Unfortunately, JavaScript is not actually reactive. Take a look at this very simple example:
 
 ```javascript
 var a = 1;
