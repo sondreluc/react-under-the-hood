@@ -5,21 +5,21 @@
   * Why Would I Want to Use React?
 * Chapter 2: Key Concepts
   * How Does React View the World?
-    * How To Separate Concerns: Write Components, Not Templates
-    * Data Binding
-    * Virtual DOM
-    * Data in React
-  * React's Design Under the Hood
+  * How To Separate Concerns: Write Components, Not Templates
+  * Data Binding
+  * Virtual DOM
+  * Data in React
+* Chapter 3: React's Design Under the Hood
     * Virtual DOM Diff Algorithm
     * Event Delegation and Autobinding
     * Rendering
-* Chapter 3: Relevant Libraries & Concepts
+* Chapter 4: Relevant Libraries & Concepts
   * Flux
   * GraphQL
   * Relay
   * Immutable.js
-* Chapter 4: Star Trek Video Game Tutorial
-* Chapter 5: Advanced topics
+* Chapter 5: Star Trek Video Game Tutorial
+* Chapter 6: Advanced topics
   * Prop types
   * Testing
   * Optimization
