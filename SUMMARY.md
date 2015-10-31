@@ -2,12 +2,12 @@
 
 * Chapter 1: Introduction
   * What is React?
-  * Developement of React
+  * Development of React
   * Why Would I Want to Use React?
   * Why is React so popular?
 * Chapter 2: Key Concepts
   * How Does React View the World?
-    * How To Seperate Concers: Write Components, Not Templates
+    * How To Separate Concerns: Write Components, Not Templates
     * All Data Binding Abstractions Leak
     * How React Manages State
   * React's Design Under the Hood
