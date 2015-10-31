@@ -100,13 +100,15 @@ Needless to say, this is not necessarily a mistake or bug in the language, but i
 
 This is not a trivial abstraction on top of JavaScript, and like all abstractions, these implementations leak. The difference is how leaky they are, when do they leak, and how easy is it to spot and fix the leak.
 
-Pretty much every JavaScript frameworks uses Key-Value Observation (KVO) for data binding (most prominently Ember and Meteor) except Angular (which uses dirty checking). We will not dive into too much detail into these systems in this book. The main problem with these systems is they diverge too far away from something that looks a lot more like vanilla javascript.
+Pretty much every JavaScript frameworks uses Key-Value Observation (KVO) for data binding (most prominently Ember and Meteor) except Angular (which uses dirty checking). We will not dive into too much detail into these systems in this book. The main problem with these systems is they diverge too far away from something that looks a lot more like vanilla JavaScript. They also require deep understanding of the inner workings of these systems. 
 
-We will not go into too much detail into these systems but suffice it to say that anyone who's worked with these frameworks know of the pain in KVO of having to know the internal implementation details of other object resulting in tight coupling or the pain of working with `$scope`, `$watch`, and `$apply` in Angular. These are not simple abstractions, and they often break in mysterious ways that are not intuitive. You have to learn a lot about the framework's data binding system and how to fix it. And often times, the way to fix it is to go around the data binding system all together, which is it's own nightmare. In other words, you need to be deeply familiar with the frameworks and their pain points.
+Take Angular for example: a developer working on a non-trivial Angular application will need a deep understanding of the digest cycle. This is most apparent when attempting to test in Angular. Since the beggining, Angular claimed that it is easy to test. That is a lie. Testing in Angular is incredibly difficult. In order to create a simple unit test, you need to stub out a large portion of the framework. This requires a deep understanding of how dependency injection works in Angular, and when to use `$scope`, `$watch`, and `$apply`. These are not simple abstractions, and they often break in mysterious ways that are not intuitive. You have to learn a lot about the framework's data binding system and how to fix it. And often times, the way to fix it is to go around the data binding system all together, which is it's own nightmare. In other words, you need to be deeply familiar with the Angular and it's pain points.
 
-This is far from ideal. The ideal data binding system tries to stick to plain old JavaScript functions as much as possible, while giving you simple tools for reactivity. You shouldn't have to think about how the data binding works. And when there are leaks, either the leak isn't a show stopper and/or the solution is crystal clear. React fits this description almost perfectly.
+This is far from ideal. The ideal data binding system tries to stick to plain old JavaScript functions as much as possible, while giving you simple tools for reactivity. You should not have to think about how the data binding works. Leaks in the abstraction should be predictable every time and easy to solve. 
 
-### How React Manages State
+React fits this description almost perfectly. It's data binding system is not perfect, but those leaks are very well understood and predictable.
+
+### Virtual DOM
 
 React's approach to managing state and complexity via data binding relies on much simpler abstractions: the Virtual DOM and a unidirectional data flow.
 
