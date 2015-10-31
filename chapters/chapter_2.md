@@ -147,9 +147,9 @@ If you type in the letter "M" into the input field, `updateName` will be called,
 
 By the time you are finished typing "Mittens", React would have triggered numerous re-renders on `Cat`. On the surface, this seems like it would be slow. In fact, this design decision makes React extremely fast. Because this is all done in JavaScript, this is all performed within one repaint of the browser. Even in the worse case senario involving tens of thousands of DOM mutations, React will perform a re-render withing the repaint time of the browser. This is due to the speed of modern JavaScript engines and React's clever diffing algorithm, which we will go into more detail shortly.
 
-## Unidirectional Data Flow
+## Data in React
 
-In addition to the Virtual DOM, React treats data very differently from other JavaScript frameworks. React separates data that changes over time (state) from immutable data that stays the same. React calls these two concepts `state` and `props`. In React, components manage their own internal `state` and receive `props` from the parents, or pass in props to their children. React enforces a unidirectional data flow from parent to child. A React component passes data to their child components as `props` and child components cannot pass data to their parents.
+In addition to the Virtual DOM, React treats data very differently from other JavaScript frameworks. React separates data that changes over time (state) from immutable data that stays the same. React calls these two concepts `state` and `props`. In React, components manage their own internal `state` and receive `props` from the parents, or pass in `props` to their children. React enforces a unidirectional data flow from parent to child. A React component passes data to their child components as `props` and child components cannot pass data to their parents.
 
 Unlike other frameworks where data and messages fly in multiple directions over time and are always mutable, React's design streamlines the flow of messages as well as separating things that change from things that don't.
 
