@@ -81,7 +81,9 @@ User interfaces are very difficult to build due to the amount of state found in 
 
 Why is state so hard to understand? Essentially, state is your data at any given point in time. In other words, state is data that changes over time -- it's mutable. Human brains, it turns out, are not very well geared toward reasoning about systems that change over time. We are masters of understanding static relationships and have no problem keeping those relationships in our brains. However, we have a really hard time at keeping track of dynamic relationships that change over time. When data is constantly in flux, we humans have a hard time trying to reason about exactly what is going on at any given point in time.
 
-So how do we as programmers master state in user interfaces? Traditionally, we've done this via data binding, which makes the UI look more like a static program relative to our data. In other words, data binding syncs UI state with the data model. Data binding is one of many great ideas to come from the 1970's but there's a problem here. That problem with data binding in JavaScript is that it is a polyfill for reactive JavaScript in the DOM. What does that mean exactly?
+So how do we as programmers master state in user interfaces? Traditionally, we have done this via data binding. This helps transform a dymanic process into a more static one. Data binding makes the UI look more like a static program relative to our data. In other words, data binding syncs UI state with a data model.
+
+Data binding is one of many great ideas to come from the 1970's but in JavaScript it is not perfect. The problem with data binding in JavaScript is that it is a polyfill for reactive programming in the DOM. What do we mean by that?
 
 Reactive programming is a little difficult to grasp at first, but it is basically programming with asynchronous data streams. Unfortunately, JavaScript is not actually reactive. Take a look at a very simple example:
 
