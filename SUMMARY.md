@@ -7,7 +7,7 @@
   * How Does React View the World?
     * How To Separate Concerns: Write Components, Not Templates
     * Data Binding
-    * How React Manages State
+    * Virtual DOM
   * React's Design Under the Hood
     * Virtual DOM Diff Algorithm
     * Event Delegation and Autobinding
