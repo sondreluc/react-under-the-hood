@@ -85,7 +85,7 @@ So how do we as programmers master state in user interfaces? Traditionally, we'v
 
 Reactive programming is a little difficult to grasp at first, but it is basically programming with asynchronous data streams. Unfortunately, JavaScript is not actually reactive. Take a look at a very simple example:
 
-```
+```javascript
 var a = 1;
 var b = 1;
 var c = a + b;
@@ -108,7 +108,7 @@ Essentially, React's Virtual DOM system abstracts the DOM by keeping a virtual r
 
 Let's look at a very simple example and see how this works in more detail. You can play with the live demo here: [Demo](http://codepen.io/anon/pen/VvrqxO)
 
-```
+```javascript
 var Cats = React.createClass({
   getInitialState: function() {
     return { catCount: 0 };
@@ -147,7 +147,7 @@ Unidirectional data flow limits the messages and data being passed to the system
 
 Let's take a look at an example of `state`, `props`, and unidirectional data flow.
 
-```
+```javascript
 var AnimalRescue = React.createClass({
   getInitialState: function() {
     return { catCount: 0, dogCount: 0 }
@@ -198,7 +198,7 @@ When the button is clicked, `this.moreAnimals` is called, which is in charge of 
 
 You may have spotted a refactoring opportunity here. Because React sticks to regular JavaScript as much possible and components are idempotent, you can easily refactor your code and create reusable components.
 
-```
+```javascript
 var AnimalRescue = React.createClass({
   getInitialState: function() {
     return { catCount: 0, dogCount: 0 }
@@ -270,7 +270,7 @@ With these heuristics in place, React's diff algorithm is O(n). That's because i
 
 Let's take a look at a simple example:
 
-```
+```javascript
 var PetOwner = React.createClass({
   render: function() {
     if (this.props.likedCats) {
@@ -302,7 +302,7 @@ Simple enough. But what happens if we're trying to insert an element in the midd
 
 Consider the following example. We're going to render a unordered list with one list item.
 
-```
+```javascript
 var List = React.createClass({
   render: function() {
     return (
@@ -330,7 +330,7 @@ This is one of the places where the data binding abstraction via the Virtual DOM
 
 In order to fix this problem, sibling elements need a unique key attribute. If each sibling element is given a unique key, React is now able to insert, delete, substitute, and move in O(n) using a hash table.
 
-```
+```javascript
 var List = React.createClass({
   render: function() {
     return (
@@ -354,7 +354,7 @@ Here's how it works: Instead of adding event listeners directly to a DOM node, R
 
 Best of all, React's event system is W3C compliant, meaning that it will work on IE8. It also means you have the same interface as the browser's native events, like `stopProgation()` and `preventDefault()`. You should keep this in mind if you're submitting a form:
 
-```
+```javascript
 var NewCatForm = React.createClass({
   handleSubmit: function(e) {
     e.preventDefault();
@@ -386,7 +386,7 @@ Still, the fact that React triggers a re-render of a component's children, even 
 
 React provides hooks into a components lifecycle, and one of those methods is called `shouldComponentUpdate`.
 
-```
+```javascript
 var MyComponent = React.createClass({
   render: function() {
     return <span>My Component</span>
