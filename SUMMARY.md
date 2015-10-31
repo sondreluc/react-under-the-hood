@@ -8,7 +8,7 @@
     * How To Separate Concerns: Write Components, Not Templates
     * Data Binding
     * Virtual DOM
-    * Unidirectional Data Flow
+    * Data in React
   * React's Design Under the Hood
     * Virtual DOM Diff Algorithm
     * Event Delegation and Autobinding
