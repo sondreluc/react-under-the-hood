@@ -15,3 +15,7 @@ Still, the internals of React are fascinating and worth learning. React's way of
 This tutorial/free ebook is an introduction to React, but also dives much deeper into the ideas behind React. Rather than cargo-culting on what is popular, the goal is to show the reader how React works under the hood, as well as go over how to use it. In addition, we will be going over why React is great for working with existing legacy code and third-party libraries such as jQuery plugins. By the end of this book the reader should fully understand React's architectural philosophy and design decisions. The book will cover how to test and debug React applications, as well as learn React patterns and anti-patters. 
 
 To achieve this, the book will be a mixture of explanations and a practical exercise where the reader will build a simple Star Trek video game.
+
+## Who Should Read This Book?
+
+This book is intended for absolute beginners to React. That said, this book will go over the internals of React, which is beneficial for those already familiar with React.
