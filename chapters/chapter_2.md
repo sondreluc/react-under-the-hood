@@ -151,9 +151,9 @@ By the time you are finished typing "Mittens", React would have triggered numero
 
 In addition to the Virtual DOM, React treats data differently from other JavaScript projects like Angular or Ember. React separates data that changes over time (state) from data that stays the same. It does this via two concepts: `state` and `props`. `state` is data that will change over time such as user interaction 
 
-Components should strive to contain as little state as possible but when a component needs 
+Components should strive to contain as little state as possible. However, sometimes a component needs to respond to external events such as user interaction, a server request, or the passage of time. For that kind of data, components should keep that in `state`. For data that will not change, components should keep that in `props`.
 
-Components manage their own internal `state` and either 
+React receive `props` from a parent component. By relying on props, a component essentially becomes an idempotent function. React sees components as functions, therefore it forces data to only flow from parent to child. Just like a function, data should flow into it as arguments. 
 
 In addition to the Virtual DOM, React treats data very differently from other JavaScript frameworks. React separates data that changes over time (state) from immutable data that stays the same. React calls these two concepts `state` and `props`. In React, components manage their own internal `state` and receive `props` from the parents, or pass in `props` to their children. React enforces a unidirectional data flow from parent to child. A React component passes data to their child components as `props` and child components cannot pass data to their parents.
 
