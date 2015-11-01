@@ -1,4 +1,6 @@
-### Virtual DOM Diff Algorithm
+# React's Design Under the Hood
+
+## Virtual DOM Diff Algorithm
 
 React doesn't exactly re-render the whole app on every state change: it only changes the parts that need to change. But how does it do that exactly?
 
@@ -92,7 +94,7 @@ var List = React.createClass({
   * `first = getElementByKeyName('first')`
   * Insert node before `first`, `<li key="second">Second</li>`
 
-### Event Delegation and Autobinding
+## Event Delegation and Autobinding
 
 Adding event listeners to DOM nodes is notoriously slow. Since React triggers a re-render of a component and it's children whenever it's internal state has changes, adding and removing event listeners can have a huge negative effect on performance. React handles this by implementing a technique called "event delegation" which it calls it's "Synthetic Event System".
 
@@ -124,7 +126,7 @@ var NewCatForm = React.createClass({
 
 We're passing a callback method called `handleSubmit` to the form. Usually when creating a callback you need to bind the method to it's instance so that the value of `this` is correct. React autobinds that for you by caching the method so it's more CPU and memory efficient.
 
-### Rendering
+## Rendering
 
 Whenever `setState` is called in a component, React will consider that tree node to be dirty. React will then trigger a re-render off all the dirty nodes and their children. During an event loop, React batch all these modifications to the DOM so that it's only touched once. 
 
