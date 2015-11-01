@@ -1,6 +1,11 @@
 # React's Design Under the Hood
 
+
+
 ## Virtual DOM Diff Algorithm
+
+
+React does not do a total re-render of the whole application on every state change
 
 React doesn't exactly re-render the whole app on every state change: it only changes the parts that need to change. But how does it do that exactly?
 
