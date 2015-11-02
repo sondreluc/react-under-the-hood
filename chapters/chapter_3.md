@@ -1,4 +1,4 @@
-# Chapter 4: React's Design Under the Hood
+# Chapter 3: React's Design Under the Hood
 
 In the last chapter we described React's core concepts. In this chapter we are going to over some of those topics in more detail. The purpose of this chapter is to give the reader a deeper understanding of React's internals in order to have a more nuance opinion of where React fits in modern web development. 
 
