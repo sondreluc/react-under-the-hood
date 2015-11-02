@@ -111,24 +111,9 @@ Adding an element to the end of the list is pretty straight forward. However, it
   * Take `<li>First</li>` and change it to `<li>Second</li>`
   * Append node `<li>First</li>`
 
-Without a unique identifier for each element in a list the number of operations necessary to modify this list increases exponentially. In fact, the fastest algorithm for inserting, substituting, or removing a single element ([Levenshtein distance](https://en.wikipedia.org/wiki/Levenshtein_distance)) can at best perform this operation in O(n^2). Even with Levenshtein, this does now help us find when a node moved. 
+Without a unique identifier for each element in a list the number of operations necessary to modify this list increases exponentially. In fact, the fastest algorithm for inserting, substituting, or removing a single element ([Levenshtein distance](https://en.wikipedia.org/wiki/Levenshtein_distance)) can at best perform this operation in O(n^2). Even with Levenshtein, this does not help us find when a node has moved. 
 
-Sibling elements are one area where React's data binding abstraction leaks. 
-
-
-
-
-
-In these cases where the identity and state of each child must be maintained across render passes, you can uniquely identify each child by assigning it a key:
-
-When React reconciles the keyed children, it will ensure that any child with key will be reordered (instead of clobbered) or destroyed (instead of reused).   
-
-
-
-
-This is one of the places where the data binding abstraction via the Virtual DOM leaks. But this leak is consistent and predictable. Also, React gives you nice hints if you fail to fix this.
-
-In order to fix this problem, sibling elements need a unique key attribute. If each sibling element is given a unique key, React is now able to insert, delete, substitute, and move in O(n) using a hash table.
+Sibling elements are the main area where React's data binding abstraction leaks. In this particular case, React provides an optional attribute to make this a O(n) problem. In cases where identity and state must be maintained across re-renders, React allows you to add a `key` attribute to each element. With these keys, it will ensure siblings will be reordered or destroyed correctly.
 
 ```javascript
 var List = React.createClass({
@@ -142,9 +127,84 @@ var List = React.createClass({
 });
 ```
 
-* `<ul><li key="first">First</li></ul>` to `<ul><li key="second">Second</li><li key="first">First</li></ul>`
+* `<ul> <li key="first">First</li> </ul>` to `<ul> <li key="second">Second</li> <li key="first">First</li> </ul>`
   * `first = getElementByKeyName('first')`
   * Insert node before `first`, `<li key="second">Second</li>`
+
+These keys do not need to be unique across the whole system. They only need to be unique within the scope of a particular list. You could reuse the key as long as it is not in the same list.
+
+Also, the key should always be supplied by the parent component and not within an sibling component itself. Here is an example:
+
+```javascript
+// Wrong
+var ListItem = React.createClass({
+  render: function() {
+    return <li key={this.props.data.id}>{this.props.data.text}</li>;
+  }
+});
+var List = React.createClass({
+  render: function() {
+    return (
+      <ul>
+        {this.props.results.map(function(result) {
+          return <ListItem data={result}/>;
+        })}
+      </ul>
+    );
+  }
+});
+```
+
+```javascript
+// Correct
+var ListItem = React.createClass({
+  render: function() {
+    return <li>{this.props.data.text}</li>;
+  }
+});
+var List = React.createClass({
+  render: function() {
+    return (
+      <ul>
+        {this.props.results.map(function(result) {
+           return <ListItem key={result.id} data={result}/>;
+        })}
+      </ul>
+    );
+  }
+});
+```
+Along with updating a list of sibling elements, React's data binding abstraction will leak in a somewhat non-obvious way. Since `render` is just a JavaScript function that returns a virtual representation of the DOM, it cannot return stand alone sibling elements without a parent element wrapping them. 
+
+Here is an example:
+
+```javascript
+// Wrong
+var MyComponent = React.createClass({
+  render: function() {
+    return (
+      <p>First</p>
+      <p>Second</p>
+    );
+  }
+});
+```
+
+```javascript
+// Correct
+var MyComponent = React.createClass({
+  render: function() {
+    return (
+      <div>
+        <p>First</p>
+        <p>Second</p>
+      </div>
+    );
+  }
+});
+```
+
+There are two reasons why the first example will not work. First, since `render` is just a regular JavaScript function, there can only be one return value. Second, in order for the diff algorithm to work, it requires a tree structure. Without wrapping the `p` elements within some parent, we would be trying to return two values, as well as returning a structure that is not a tree.
 
 ## Event Delegation and Autobinding
 
