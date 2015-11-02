@@ -2,7 +2,7 @@
 
 In the last chapter we described React's core concepts. In this chapter we are going to over some of those topics in more detail. The purpose of this chapter is to give the reader a deeper understanding of React's internals in order to have a more nuance opinion of where React fits in modern web development. 
 
-As a side note, we are going to compare the efficiency of algorithms using asymptotic notation. If you are unfamiliar with asymptotic notation, take a few minutes to get up to speed by watching this explanation from Harvard's CS50 course: [Asymtotic Notation](https://www.youtube.com/watch?v=iOq5kSKqeR4).
+As a side note, we are going to compare the efficiency of algorithms using asymptotic notation. If you are unfamiliar with asymptotic notation, take a few minutes to get up to speed by watching this explanation from Harvard's CS50 course: [Asymtotic Notation Video](https://www.youtube.com/watch?v=iOq5kSKqeR4).
 
 
 ## Virtual DOM Diff Algorithm
@@ -46,24 +46,43 @@ Let's assume that based on state changes, the following actions will occur:
 2. Then, we replace this component with a similar component, instead this time `likesCats` will equal `false`. In other words, the new component will be: `<PetOwner likesCats={false}/>`.
 3. Finally, the component will be completely removed. This could be due to a change in the route or something of that nature.
 
-Based on the heuristics described above, the following DOM mutations will occur:
+Based on the heuristics described above, let's walk through what DOM mutations will occur.
 
+On Step 1, we are adding `PetOwner` for the first time. Since there was nothing there before, React will know to simply add the new DOM nodes. Here is what is will look like now:
+
+```html
+<div class="likes-cats">
+  <span>Cats Rule!</span>
+</div>
+```
+
+On Step 2, we are replacing a component of class `PetOwner` with another component of the exact same class. Because these two components are of the same class, chances are their DOM trees are going to be very similar. Therefore, React will keep the previous DOM tree and begin to compare these trees one level at a time. This is what the next DOM tree should look like:
+
+```html
+<div class="likes-dogs">
+  <p>Dogs Rule!</p>
+</div>
+```
+
+Since React decided to keep the prior DOM tree, it will begin to compare the previous DOM tree with the new one starting at the very top. Both of these DOM trees begin with a `div`. Since they are both a `div` React will continue to keep this DOM tree. If the DOM elements were different, React would completely remove the previous DOM tree and replace it with a new one. Chances are if we are replacing a type of DOM element without a DOM element of a different type, the rest of the structure is going to look radically different. Therefore, it would be inefficient mutate the current DOM tree. It would be more efficient to completely remove it and start from scratch.
+
+Since they are both a `div`, React will keep the previous `div`, but will update it's class from `likes-cats` to `likes-dogs`. Then, the diff algorithm will compare the DOM trees one level down. On that level, we are replacing `<span>Cats Rule!</span>` with `<p>Dogs Rule!</p>`. Since we a replacing `span` with a totally different kind of DOM element, a `p`, React will completely remove the previous `span` and replace it with the new `p`. It will not bother trying to update the prior DOM element, it will just remove it entirely.
+
+Finally, on Step 3, since the `PetOwner` component no longer exists in the new Virtual DOM representation, React will simply remove the entire `PetOwner` DOM tree.
+
+Here is what the operations would look at a glance:
 
 1. Mount `<PetOwner likesCats={true} />`
   * Create node: `<div className="likes-cats"><span>Cats Rule!</span></div>`
 2. `<PetOwner likesCats={true} />` to `<PetOwner likesCats={false} />`
-  * Replace attribute `className="likes-cats"` to `className="likes-dogs"`
+  * Replace attribute `class="likes-cats"` to `class="likes-dogs"`
   * Replace node `<span>Cats Rule!</span>` to `<p>Dogs Rule!</p>`
 3. Unmount `<PetOwner likesCats={false} />`
   * Remove node `<div className="likes-dogs"></div>`
   
-Because we're replacing one component with another component of the same class (PetOwner), React knows to look at their top level attributes and decide how to update (in this case, it changes the class of the `div` to "likes-dogs"). Then it goes one level lower. Since the DOM nodes are different, it will simply remove the node and replace it with the new one.
+So far we have mentioned the first two heuristics. The final heuristic comes into play if we are trying to insert an element in the middle of a list of other elements.
 
-If we were replacing `<PetOwner />` with `<CarOwner />`, React would know that these components are of a different class and most likely very different. So, it won't even bother going another level down to figure out the differences. It will just remove the old DOM node and start replacing it with the new one.
-
-Simple enough. But what happens if we're trying to insert an element in the middle of a list of other elements? 
-
-Consider the following example. We're going to render a unordered list with one list item.
+Consider the following example. We are rendering an unordered list with one list item.
 
 ```javascript
 var List = React.createClass({
@@ -77,12 +96,13 @@ var List = React.createClass({
 });
 ```
 
-Let's say we want to add another list item to the end. This is what it would look like
+Let's say we want to add another list item to the end. This is what the operations would look like:
 
 * `<ul><li>First</li></ul>` to `<ul><li>First</li><li>Second</li></ul>`
   * Insert node `<li>Second</li>`
   
-That was easy. But it's much harder if we wanted to add the `li` to the front of the list:
+Adding an element to the end of the list is pretty straight forward. However, it is more difficult if we wanted to add the `li` to the front of the list:
+
 * `<ul><li>First</li></ul>` to `<ul><li>Second</li><li>First</li></ul>`
   * Replace text content from 'first' to 'second'
   * Insert node `<li>First</li>`
@@ -162,3 +182,6 @@ var MyComponent = React.createClass({
 ```
 
 With `shouldComponentUpdate` you can tell React whether a particular component needs to be re-rendered or not. Generally this is not necessary, but if you need to optimize performance, telling React which nodes don't needs to be re-rendered can result in performance improvements.
+
+
+Final note, you have to wrap everything in the render function in a parent DOM element, otherwise it won't work.
