@@ -1,10 +1,20 @@
 # React's Design Under the Hood
 
-In the last chapter we described React's core concepts. In this chapter we are going to go over some of those concepts in detail. The purpose of this chapter is to give the reader a deeper understanding of React's internals in order to have a more nuanced opinion of where React fits in modern web development.
+In the last chapter we described React's core concepts. In this chapter we are going to over some of those topics in more detail. The purpose of this chapter is to give the reader a deeper understanding of React's internals in order to have a more nuance opinion of where React fits in modern web development. 
 
 ## Virtual DOM Diff Algorithm
 
-The diffing algorithm in React's Virtual DOM is incredibly efficient and pretty clever. Still like all abstractions, React does leak in certain places. That said, leaks in this abstraction are always predictable and easily managed. 
+As mentioned before, React's implementation of data binding involves an in memory representation of the DOM: the Virtual DOM. On every state change, React re-render affected components in memory. It then uses a clever diffing algorithm to compute the minimum number of DOM mutations necessary to achieve the new DOM tree.
+
+This diffing algorithm is incredibly efficient and ingenious. Still, it's a non-trivial abstraction and all abstractions leak. That said, React's abstraction leaks are minor, predictable, and easily managed.
+
+This diffing algorithm is incredibly efficient and ingenious. It is what makes it not only possible to re-render on every state change, it is what makes it orders of magnitude faster than anything else in the JavaScript landscape.
+
+
+
+
+
+It's important to emphasize that React will not re-render the entire app. It will only re-render components that are affected by changes to a particular state change.
 
 React doesn't exactly re-render the whole app on every state change: it only changes the parts that need to change. But how does it do that exactly?
 
