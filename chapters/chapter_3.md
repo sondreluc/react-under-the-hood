@@ -10,7 +10,9 @@ As a side note, we are going to compare the efficiency of algorithms using asymp
 As mentioned previously, React's data binding implementation involves an in memory representation of the DOM: the Virtual DOM. On every state change, React will trigger a re-render of components that rely on that state. It uses a diff algorithm to compute the minimum number of DOM mutation necessary to achieve the new DOM tree.
 
 This algorithm is incredibly efficient and ingenious. It not only makes it practical to re-render on every state change, it also makes React orders of magnitude faster than any other data binding system. Still, it is a non-trivial abstraction which by definition will have leaks. That said, the Virtual DOM's abstraction leaks are relatively minor, predictable and manageable. By no means is the Virtual DOM the end of history for client-side JavaScript, but it is the next step in its evolution. 
-On the surface, triggering a re-render would appear to be an inefficient way to keep the UI in sync with a data model. It is important to emphasize that React will not re-render the entire application. It will only re-render the components that are affected by changed to a particular state change. In React data always travels from parent component to child components, making it easy to determine which parts of the UI need to be updated. Whenever state changes in a component, React will trigger a re-render of that component and it's children. Unidirectional data flow makes it possible to isolate UI changes to just one branch in a DOM tree.
+On the surface, triggering a re-render would appear to be an inefficient way to keep the UI in sync with a data model. In fact, this is not a problem. JavaScript is pretty fast and `render` tends to be a fairly cheap operation. In addition, mutating the DOM is almost always the performance bottleneck, not JavaScript. React will optimize this via its diff algorithm, as well as other techniques which will be explained later in this chapter.
+
+It is important to emphasize that React will not re-render the entire application. It will only re-render the components that are affected by changed to a particular state change. In React data always travels from parent component to child components, making it easy to determine which parts of the UI need to be updated. Whenever state changes in a component, React will trigger a re-render of that component and it's children. Unidirectional data flow makes it possible to isolate UI changes to just one branch in a DOM tree.
 
 By isolating changes to just one branch of the DOM tree, we can take advantage of existing algorithms for determining the minimum distance between trees. Comparing tree data structures is one of the most studied and well understood problems in computer science. Now React can compare the new DOM tree to the old DOM tree in memory.
 
@@ -111,7 +113,18 @@ Adding an element to the end of the list is pretty straight forward. However, it
 
 Without a unique identifier for each element in a list the number of operations necessary to modify this list increases exponentially. In fact, the fastest algorithm for inserting, substituting, or removing a single element ([Levenshtein distance](https://en.wikipedia.org/wiki/Levenshtein_distance)) can at best perform this operation in O(n^2). Even with Levenshtein, this does now help us find when a node moved. 
 
-is one area where React's data binding abstraction 
+Sibling elements are one area where React's data binding abstraction leaks. 
+
+
+
+
+
+In these cases where the identity and state of each child must be maintained across render passes, you can uniquely identify each child by assigning it a key:
+
+When React reconciles the keyed children, it will ensure that any child with key will be reordered (instead of clobbered) or destroyed (instead of reused).   
+
+
+
 
 This is one of the places where the data binding abstraction via the Virtual DOM leaks. But this leak is consistent and predictable. Also, React gives you nice hints if you fail to fix this.
 
