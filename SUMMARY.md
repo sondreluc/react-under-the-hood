@@ -11,6 +11,7 @@
   * Data in React
 * Chapter 3: React's Design Under the Hood
     * Virtual DOM Diff Algorithm
+    * Sibling Elements
     * Event Delegation and Autobinding
     * Rendering
 * Chapter 4: Relevant Libraries & Concepts
