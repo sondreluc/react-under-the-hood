@@ -2,21 +2,20 @@
 
 In the last chapter we described React's core concepts. In this chapter we are going to over some of those topics in more detail. The purpose of this chapter is to give the reader a deeper understanding of React's internals in order to have a more nuance opinion of where React fits in modern web development. 
 
+As a side note, we are going to compare the efficiency of algorithms using asymptotic notation. If you are unfamiliar with asymptotic notation or 
+
+if you are unfamiliar with asymptotic notation
+
 ## Virtual DOM Diff Algorithm
 
-As mentioned before, React's implementation of data binding involves an in memory representation of the DOM: the Virtual DOM. On every state change, React re-render affected components in memory. It then uses a clever diffing algorithm to compute the minimum number of DOM mutations necessary to achieve the new DOM tree.
+As mentioned previously, React's data binding implementation involves an in memory representation of the DOM: the Virtual DOM. On every state change, React will trigger a re-render of components that rely on that state. It uses a diff algorithm to compute the minimum number of DOM mutation necessary to achieve the new DOM tree.
 
-This diffing algorithm is incredibly efficient and ingenious. Still, it's a non-trivial abstraction and all abstractions leak. That said, React's abstraction leaks are minor, predictable, and easily managed.
+This algorithm is incredibly efficient and ingenious. It not only makes it practical to re-render on every state change, it also makes React orders of magnitude faster than any other data binding system. Still, it is a non-trivial abstraction which by definition will have leaks. That said, the Virtual DOM's abstraction leaks are relatively minor, predictable and manageable. By no means is the Virtual DOM the end of history for client-side JavaScript, but it is the next step in its evolution. 
+On the surface, triggering a re-render would appear to be an inefficient way to keep the UI in sync with a data model. It is important to emphasize that React will not re-render the entire application. It will only re-render the components that are affected by changed to a particular state change. In React data always travels from parent component to child components, making it easy to determine which parts of the UI need to be updated. Whenever state changes in a component, React will trigger a re-render of that component and it's children. Unidirectional data flow makes it possible to isolate UI changes to just one branch in a DOM tree.
 
-This diffing algorithm is incredibly efficient and ingenious. It is what makes it not only possible to re-render on every state change, it is what makes it orders of magnitude faster than anything else in the JavaScript landscape.
+By isolating changes to just one branch of the DOM tree, we can take advantage of existing algorithms for determining the minimum distance between trees. Comparing tree data structures is one of the most studied and well understood problems in computer science. Now React can compare the new DOM tree to the old DOM tree in memory. Given the most [efficient algorithms](http://grfia.dlsi.ua.es/ml/algorithms/references/editsurvey_bille.pdf), determining the minimum number of mutations between two trees is a O(n^3) problem. 
 
-
-
-
-
-It's important to emphasize that React will not re-render the entire app. It will only re-render components that are affected by changes to a particular state change.
-
-React doesn't exactly re-render the whole app on every state change: it only changes the parts that need to change. But how does it do that exactly?
+Side note: we are going to compare the efficiency of algorithms 
 
 The DOM is just a tree of nodes, and DOM is just a tree of nodes. Comparing two trees is one of the most studied and understood problems in computer science. Finding the minimum number of mutations between two trees, even with the most [performant algorithms](http://grfia.dlsi.ua.es/ml/algorithms/references/editsurvey_bille.pdf) we have, are a O(n^3) problem, where `n` is the number of nodes.
 
@@ -28,7 +27,7 @@ What we need are a set heuristics that help make this algorithm much more perfor
 2. Components of a different class will generate different trees
 3. You can add unique keys to elements that are stable across different renders
 
-With these heuristics in place, React's diff algorithm is O(n). That's because instead of trying to compare the whole tree, these heuristics help the diffing algorithm to just reconcile trees level by level. 
+With these heuristics in place, React's diff algorithm is O(n). That's because instead of trying to compare the whole tree, these heuristics help the diff algorithm to just reconcile trees level by level. 
 
 Let's take a look at a simple example:
 
