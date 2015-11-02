@@ -2,9 +2,8 @@
 
 In the last chapter we described React's core concepts. In this chapter we are going to over some of those topics in more detail. The purpose of this chapter is to give the reader a deeper understanding of React's internals in order to have a more nuance opinion of where React fits in modern web development. 
 
-As a side note, we are going to compare the efficiency of algorithms using asymptotic notation. If you are unfamiliar with asymptotic notation or 
+As a side note, we are going to compare the efficiency of algorithms using asymptotic notation. If you are unfamiliar with asymptotic notation, take a few minutes to get up to speed by watching this explanation from Harvard's CS50 course: [Asymtotic Notation](https://www.youtube.com/watch?v=iOq5kSKqeR4).
 
-if you are unfamiliar with asymptotic notation
 
 ## Virtual DOM Diff Algorithm
 
@@ -13,23 +12,19 @@ As mentioned previously, React's data binding implementation involves an in memo
 This algorithm is incredibly efficient and ingenious. It not only makes it practical to re-render on every state change, it also makes React orders of magnitude faster than any other data binding system. Still, it is a non-trivial abstraction which by definition will have leaks. That said, the Virtual DOM's abstraction leaks are relatively minor, predictable and manageable. By no means is the Virtual DOM the end of history for client-side JavaScript, but it is the next step in its evolution. 
 On the surface, triggering a re-render would appear to be an inefficient way to keep the UI in sync with a data model. It is important to emphasize that React will not re-render the entire application. It will only re-render the components that are affected by changed to a particular state change. In React data always travels from parent component to child components, making it easy to determine which parts of the UI need to be updated. Whenever state changes in a component, React will trigger a re-render of that component and it's children. Unidirectional data flow makes it possible to isolate UI changes to just one branch in a DOM tree.
 
-By isolating changes to just one branch of the DOM tree, we can take advantage of existing algorithms for determining the minimum distance between trees. Comparing tree data structures is one of the most studied and well understood problems in computer science. Now React can compare the new DOM tree to the old DOM tree in memory. Given the most [efficient algorithms](http://grfia.dlsi.ua.es/ml/algorithms/references/editsurvey_bille.pdf), determining the minimum number of mutations between two trees is a O(n^3) problem. 
+By isolating changes to just one branch of the DOM tree, we can take advantage of existing algorithms for determining the minimum distance between trees. Comparing tree data structures is one of the most studied and well understood problems in computer science. Now React can compare the new DOM tree to the old DOM tree in memory.
 
-Side note: we are going to compare the efficiency of algorithms 
+Given the most [efficient algorithms](http://grfia.dlsi.ua.es/ml/algorithms/references/editsurvey_bille.pdf), determining the minimum number of mutations between two trees is a O(n^3) problem, where `n` is the number of nodes. With a small number of DOM nodes, this would not be a problem. However, the number of operations will increase dramatically. If we were to compare two trees wth 1,000 nodes each, figuring out the minimum operations to transform one to the other would require _one billion_ operations. This is not sustainable.
 
-The DOM is just a tree of nodes, and DOM is just a tree of nodes. Comparing two trees is one of the most studied and understood problems in computer science. Finding the minimum number of mutations between two trees, even with the most [performant algorithms](http://grfia.dlsi.ua.es/ml/algorithms/references/editsurvey_bille.pdf) we have, are a O(n^3) problem, where `n` is the number of nodes.
-
-This is not good enough. If two trees have 1,000 nodes each, figuring out the minimum operations to transform one to the other would require _one billion_ operations. This is not sustainable.
-
-What we need are a set heuristics that help make this algorithm much more performant. React's algorithm makes the following assumptions:
+We can speed up this algorithm significantly if we make a few assumptions about the DOM trees we are comparing. React applies a set of heuristics helping to dramatically improve performance. The Virtual DOM diff algorithm makes the following assumptions:
 
 1. Components of the same class will generate similar trees
 2. Components of a different class will generate different trees
 3. You can add unique keys to elements that are stable across different renders
 
-With these heuristics in place, React's diff algorithm is O(n). That's because instead of trying to compare the whole tree, these heuristics help the diff algorithm to just reconcile trees level by level. 
+With these heuristics in place, React's diff algorithm can find the minimum number of DOM mutations in O(n). That is because instead of trying to compare the whole tree, these heuristics help the diff algorithm to just reconcile trees level by level. 
 
-Let's take a look at a simple example:
+The following example walks through what this would look like in practice. Say we have the following component:
 
 ```javascript
 var PetOwner = React.createClass({
@@ -43,16 +38,23 @@ var PetOwner = React.createClass({
 });
 ```
 
-It's important to reiterate that the `render` function doesn't return a DOM node but a JavaScript object that represents the DOM. That is the Virtual DOM.
+Above, `PetOwner` will either return a `div` with a `span`, or it will return a `div` with a `p`. It is important to reiterate that the `render` function does not return DOM nodes but a JavaScript object that represents DOM nodes. That is the Virtual DOM.
 
-Let's say we first mount our component as `<PetOwner likesCats={true} />` then update the component to `<PetOwner likesCats={false} />` and then remove the component altogether. This is what the DOM operations would look like:
+Let's assume that based on state changes, the following actions will occur:
 
-* Mount `<PetOwner likesCats={true} />`
+1. The `PetOwner` component is mounted, with `likesCats` equaling to `true`. In other words, we will mount `<PetOwner likesCats={true}/>`.
+2. Then, we replace this component with a similar component, instead this time `likesCats` will equal `false`. In other words, the new component will be: `<PetOwner likesCats={false}/>`.
+3. Finally, the component will be completely removed. This could be due to a change in the route or something of that nature.
+
+Based on the heuristics described above, the following DOM mutations will occur:
+
+
+1. Mount `<PetOwner likesCats={true} />`
   * Create node: `<div className="likes-cats"><span>Cats Rule!</span></div>`
-* `<PetOwner likesCats={true} />` to `<PetOwner likesCats={false} />`
+2. `<PetOwner likesCats={true} />` to `<PetOwner likesCats={false} />`
   * Replace attribute `className="likes-cats"` to `className="likes-dogs"`
   * Replace node `<span>Cats Rule!</span>` to `<p>Dogs Rule!</p>`
-* Unmount `<PetOwner likesCats={false} />`
+3. Unmount `<PetOwner likesCats={false} />`
   * Remove node `<div className="likes-dogs"></div>`
   
 Because we're replacing one component with another component of the same class (PetOwner), React knows to look at their top level attributes and decide how to update (in this case, it changes the class of the `div` to "likes-dogs"). Then it goes one level lower. Since the DOM nodes are different, it will simply remove the node and replace it with the new one.
