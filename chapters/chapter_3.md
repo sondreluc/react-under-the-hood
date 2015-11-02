@@ -208,11 +208,11 @@ There are two reasons why the first example will not work. First, since `render`
 
 ## Event Delegation and Autobinding
 
-Adding event listeners to DOM nodes is notoriously slow. Since React triggers a re-render of a component and it's children whenever it's internal state has changes, adding and removing event listeners can have a huge negative effect on performance. React handles this by implementing a technique called "event delegation" which it calls it's "Synthetic Event System".
+Adding event handlers to DOM nodes is notoriously slow. Since React triggers a re-render of a component and its children whenever its internal state has changed, adding and removing event handlers can have a huge negative effect on performance. React handles this by implementing a technique called "event delegation" which it calls its "Synthetic Event System".
 
-Here's how it works: Instead of adding event listeners directly to a DOM node, React attaches only one event listener on the root of the document. When an event is fired, the unhandled event bubbles up the DOM until it reaches React's event listener. Instead of adding event listeners to the DOM, React keeps a hash map off all the event listeners. Once the event reaches React's event system, it looks up the DOM node the event is being called upon and acts accordingly.
+Instead of adding event handlers directly to a DOM node, React attaches only one event listener on the root of the document. When an event is fired, the unhandled event bubbles up the DOM until it reaches React's sole event listener. Instead of adding event listeners to the DOM, React keeps a hash map off all the event listeners. Once the event reaches React's event system, it looks up the DOM node the event is being called upon and acts accordingly.
 
-Best of all, React's event system is W3C compliant, meaning that it will work on IE8. It also means you have the same interface as the browser's native events, like `stopProgation()` and `preventDefault()`. You should keep this in mind if you're submitting a form:
+Best of all, React's event system is W3C compliant, meaning that it will work on IE8. It also means you have the same interface as the browser's native events, such as `stopProgation()` and `preventDefault()`. You should keep this in mind if you are submitting a form:
 
 ```javascript
 var NewCatForm = React.createClass({
@@ -242,9 +242,9 @@ We're passing a callback method called `handleSubmit` to the form. Usually when 
 
 Whenever `setState` is called in a component, React will consider that tree node to be dirty. React will then trigger a re-render off all the dirty nodes and their children. During an event loop, React batch all these modifications to the DOM so that it's only touched once. 
 
-Still, the fact that React triggers a re-render of a component's children, even if it doesn't need to be updated, is a leak in the Virtual DOM abstraction. But again, this is consistent, predictable, and generally not a problem for maintainability or performance. 
+Still, the fact that React triggers a re-render of a component's children, even if it doesn't need to be updated, is a leak in the Virtual DOM abstraction. Generally, this is not a performance problem since the biggest performance bottleneck will be updating the DOM. 
 
-React provides hooks into a components lifecycle, and one of those methods is called `shouldComponentUpdate`.
+If you need to get even more performance improvements, there is a way to tell React not to trigger a re-render. React provides hooks into a components lifecycle, and one of those methods is called `shouldComponentUpdate`.
 
 ```javascript
 var MyComponent = React.createClass({
@@ -258,7 +258,4 @@ var MyComponent = React.createClass({
 });
 ```
 
-With `shouldComponentUpdate` you can tell React whether a particular component needs to be re-rendered or not. Generally this is not necessary, but if you need to optimize performance, telling React which nodes don't needs to be re-rendered can result in performance improvements.
-
-
-Final note, you have to wrap everything in the render function in a parent DOM element, otherwise it won't work.
+With `shouldComponentUpdate` you can tell React whether a particular component needs to be re-rendered or not. Generally this is not necessary, but if you need to optimize performance, telling React which nodes do not need to be re-rendered can result in performance improvements.
