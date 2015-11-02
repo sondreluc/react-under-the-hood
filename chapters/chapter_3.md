@@ -80,6 +80,8 @@ Here is what the operations would look at a glance:
 3. Unmount `<PetOwner likesCats={false} />`
   * Remove node `<div className="likes-dogs"></div>`
   
+## Sibling Elements
+
 So far we have mentioned the first two heuristics. The final heuristic comes into play if we are trying to insert an element in the middle of a list of other elements.
 
 Consider the following example. We are rendering an unordered list with one list item.
@@ -98,16 +100,18 @@ var List = React.createClass({
 
 Let's say we want to add another list item to the end. This is what the operations would look like:
 
-* `<ul><li>First</li></ul>` to `<ul><li>First</li><li>Second</li></ul>`
-  * Insert node `<li>Second</li>`
+* `<ul> <li>First</li> </ul>` to `<ul> <li>First</li> <li>Second</li> </ul>`
+  * Append node `<li>Second</li>`
   
 Adding an element to the end of the list is pretty straight forward. However, it is more difficult if we wanted to add the `li` to the front of the list:
 
 * `<ul><li>First</li></ul>` to `<ul><li>Second</li><li>First</li></ul>`
-  * Replace text content from 'first' to 'second'
-  * Insert node `<li>First</li>`
+  * Take `<li>First</li>` and change it to `<li>Second</li>`
+  * Append node `<li>First</li>`
 
-Without unique identifiers for each sibling element, the fastest algorithm for inserting, substituting, or removing a single element ([Levenshtein distance](https://en.wikipedia.org/wiki/Levenshtein_distance)) can at best perform this operation in O(n^2). 
+Without a unique identifier for each element in a list the number of operations necessary to modify this list increases exponentially. In fact, the fastest algorithm for inserting, substituting, or removing a single element ([Levenshtein distance](https://en.wikipedia.org/wiki/Levenshtein_distance)) can at best perform this operation in O(n^2). Even with Levenshtein, this does now help us find when a node moved. 
+
+is one area where React's data binding abstraction 
 
 This is one of the places where the data binding abstraction via the Virtual DOM leaks. But this leak is consistent and predictable. Also, React gives you nice hints if you fail to fix this.
 
