@@ -10,7 +10,7 @@ module.exports = React.createClass({
       <div className="navigation">
         <NavigationDashboard ship={ship}/>
         <CourseControl
-          stars={this.props.stars}
+          starData={this.props.starData}
           ship={ship}
           updateDestination={this.props.updateDestination}/>
         <WarpDriveControls

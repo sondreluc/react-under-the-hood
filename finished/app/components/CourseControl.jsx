@@ -25,14 +25,14 @@ module.exports = React.createClass({
   },
 
   autocomplete: function() {
-    var stars = this.props.stars
-    var starNames = utils.getStarNames(stars);
+    var starData = this.props.starData;
+    var starNames = utils.getStarNames(starData);
     $(ReactDOM.findDOMNode(this.refs.search)).autocomplete({
       source: starNames,
       minLength: 3,
       select: function(event, ui) {
         var starName  = ui.item.value;
-        var system    = utils.findSystem(stars, starName);
+        var system    = utils.findSystem(starData, starName);
         this.props.updateDestination(system);
       }.bind(this),
       messages: {

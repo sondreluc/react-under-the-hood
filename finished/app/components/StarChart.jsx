@@ -1,4 +1,5 @@
 var React    = require('react');
+var Stars    = require('./Stars.jsx');
 var Starship = require('./Starship.jsx');
 
 module.exports = React.createClass({
@@ -7,37 +8,11 @@ module.exports = React.createClass({
     return (
       <div className="star-chart">
         <svg width="1000" height="600">
-          {props.starData.map(this.renderStars)}
+          <Stars starData={props.starData}
+            updateDestination={this.props.updateDestination}/>
           <Starship ship={props.ship}/>
         </svg>
       </div>
     );
-  },
-
-  renderStars: function(star, index) {
-    var circleAttr = {
-      cx: star.position[0],
-      cy: star.position[1],
-      r: 2,
-      className: 'star-circle'
-    };
-    var textAttr = {
-      x: star.position[0] + 5,
-      y: star.position[1] + 5,
-      className: 'star-name' + ' ' + this.jurisdictionToClassName(star)
-    };
-    return (
-      <g key={index}>
-        <text {...textAttr} onClick={this.props.updateDestination.bind(null, star)}>
-          {star.name}
-        </text>
-        <circle {...circleAttr}></circle>
-      </g>
-    );
-  },
-
-  jurisdictionToClassName: function(star) {
-    var jurisdiction = star.jurisdiction;
-    return jurisdiction.toLowerCase().replace(/\s+/g, '-')
   }
 });

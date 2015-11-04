@@ -1,11 +1,11 @@
-var React             = require('react');
-var Stars             = require('../data/Stars.js');
-var Ship              = require('../data/Ship.js');
-var StarChart         = require('./StarChart.jsx');
-var ShipInfo          = require('./ShipInfo.jsx');
-var Navigation        = require('./Navigation.jsx');
-var SetIntervalMixin  = require('../mixins/SetIntervalMixin.jsx');
-var nav               = require('../utilities/starshipNavigation.js');
+var React            = require('react');
+var nav              = require('../utilities/starshipNavigation.js');
+var starData         = require('../data/starData.js');
+var Ship             = require('../data/Ship.js');
+var StarChart        = require('./StarChart.jsx');
+var ShipInfo         = require('./ShipInfo.jsx');
+var Navigation       = require('./Navigation.jsx');
+var SetIntervalMixin = require('../mixins/SetIntervalMixin.jsx');
 
 module.exports = React.createClass({
   mixins: [SetIntervalMixin],
@@ -16,11 +16,10 @@ module.exports = React.createClass({
 
   render: function() {
     var ship = this.state.ship;
-    var stars = Stars.data;
     return (
       <div>
         <StarChart
-          starData={stars}
+          starData={starData}
           ship={ship}
           updateDestination={this.updateDestination}/>
         <div className="helm">
@@ -30,7 +29,7 @@ module.exports = React.createClass({
           <ShipInfo ship={ship} updateShip={this.updateShip} />
           <Navigation
             ship={ship}
-            stars={stars}
+            starData={starData}
             updateSpeed={this.updateSpeed}
             engageWarpDrive={this.engageWarpDrive}
             updateDestination={this.updateDestination}/>
