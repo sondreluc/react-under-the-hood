@@ -2,7 +2,7 @@ var React             = require('react');
 var nav               = require('../utilities/starshipNavigation.js');
 var EditableElement   = require('./EditableElement.jsx');
 
-var WarpDriveControls = React.createClass({
+module.exports = React.createClass({
   render: function() {
     return (
       <div className="navigational-controls">
@@ -37,5 +37,3 @@ var WarpDriveControls = React.createClass({
     }
   }
 });
-
-module.exports = WarpDriveControls;

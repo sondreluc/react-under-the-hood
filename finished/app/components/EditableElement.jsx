@@ -1,6 +1,6 @@
 var React = require('react');
 
-var EditableElement = React.createClass({
+module.exports = React.createClass({
   getInitialState: function() {
     return { editing: false };
   },
@@ -41,5 +41,3 @@ var EditableElement = React.createClass({
     this.setState({editing: false});
   }
 });
-
-module.exports = EditableElement;

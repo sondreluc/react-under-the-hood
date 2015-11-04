@@ -3,7 +3,7 @@ var React    = require('react');
 var ReactDOM = require('react-dom');
 var utils    = require('../utilities/starUtilities.js');
 
-var CourseControl = React.createClass({
+module.exports = React.createClass({
   render: function() {
     return (
     <div className="course-control">
@@ -42,5 +42,3 @@ var CourseControl = React.createClass({
     });
   }
 });
-
-module.exports = CourseControl;

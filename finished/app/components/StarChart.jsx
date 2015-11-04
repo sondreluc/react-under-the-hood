@@ -1,7 +1,7 @@
 var React    = require('react');
 var Starship = require('./Starship.jsx');
 
-var StarChart = React.createClass({
+module.exports = React.createClass({
   render: function() {
     var props = this.props;
     return (
@@ -14,7 +14,7 @@ var StarChart = React.createClass({
     );
   },
 
-  renderStars: function(star) {
+  renderStars: function(star, index) {
     var circleAttr = {
       cx: star.position[0],
       cy: star.position[1],
@@ -27,7 +27,7 @@ var StarChart = React.createClass({
       className: 'star-name' + ' ' + this.jurisdictionToClassName(star)
     };
     return (
-      <g key={star.id}>
+      <g key={index}>
         <text {...textAttr} onClick={this.props.updateDestination.bind(null, star)}>
           {star.name}
         </text>
@@ -41,5 +41,3 @@ var StarChart = React.createClass({
     return jurisdiction.toLowerCase().replace(/\s+/g, '-')
   }
 });
-
-module.exports = StarChart;

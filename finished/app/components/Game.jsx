@@ -1,39 +1,22 @@
 var React             = require('react');
 var Stars             = require('../data/Stars.js');
+var Ship              = require('../data/Ship.js');
 var StarChart         = require('./StarChart.jsx');
 var ShipInfo          = require('./ShipInfo.jsx');
 var Navigation        = require('./Navigation.jsx');
 var SetIntervalMixin  = require('../mixins/SetIntervalMixin.jsx');
 var nav               = require('../utilities/starshipNavigation.js');
 
-var App = React.createClass({
+module.exports = React.createClass({
   mixins: [SetIntervalMixin],
 
   getInitialState: function() {
-    return {
-      ship: {
-        info: {
-          shipName: null,
-          captain: null,
-          firstOfficer: null,
-          chiefEngineer: null,
-          tacticalOfficer: null,
-          helmsman: null
-        },
-        position: [500, 300],
-        destination: {
-          name: 'Sol',
-          position: [500, 300],
-          jurisdiction: 'Federation'
-        },
-        speed: 0
-      }
-    };
+    return { ship: new Ship() };
   },
 
   render: function() {
     var ship = this.state.ship;
-    var stars = Stars.getStarData();
+    var stars = Stars.data;
     return (
       <div>
         <StarChart
@@ -87,5 +70,3 @@ var App = React.createClass({
     }
   }
 });
-
-module.exports = App;

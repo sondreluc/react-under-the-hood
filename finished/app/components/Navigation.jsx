@@ -3,7 +3,7 @@ var NavigationDashboard  = require('./NavigationDashboard.jsx');
 var WarpDriveControls    = require('./WarpDriveControls.jsx');
 var CourseControl        = require('./CourseControl.jsx');
 
-var Navigation = React.createClass({
+module.exports = React.createClass({
   render: function() {
     var ship = this.props.ship
     return (
@@ -21,5 +21,3 @@ var Navigation = React.createClass({
     );
   }
 });
-
-module.exports = Navigation;

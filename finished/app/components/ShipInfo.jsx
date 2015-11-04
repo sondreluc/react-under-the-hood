@@ -1,7 +1,7 @@
 var React            = require('react');
 var EditableElement  = require('./EditableElement.jsx');
 
-var ShipInfo = React.createClass({
+module.exports = React.createClass({
   render: function() {
     var ship = this.props.ship;
     var info = ship.info;
@@ -34,5 +34,3 @@ var ShipInfo = React.createClass({
     this.props.updateShip(ship);
   }
 });
-
-module.exports = ShipInfo;

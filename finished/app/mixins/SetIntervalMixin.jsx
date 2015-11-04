@@ -1,4 +1,4 @@
-var SetIntervalMixin = {
+module.exports = {
   componentWillMount: function() {
     this.intervals = [];
   },
@@ -15,5 +15,3 @@ var SetIntervalMixin = {
     this.intervals.forEach(clearInterval);
   }
 };
-
-module.exports = SetIntervalMixin;

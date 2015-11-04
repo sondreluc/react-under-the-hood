@@ -1,7 +1,7 @@
 var React = require('react');
 var nav   = require('../utilities/starshipNavigation.js');
 
-var NavigationDashboard = React.createClass({
+module.exports = React.createClass({
   render: function() {
     var ship = this.props.ship
     var destination = ship.destination;
@@ -20,5 +20,3 @@ var NavigationDashboard = React.createClass({
     );
   }
 });
-
-module.exports = NavigationDashboard;
