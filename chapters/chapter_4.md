@@ -46,3 +46,7 @@ While GraphQL can help limit the amount of calls to the server, various componen
 Again, just like Flux and GraphQL, you don't need to worry about using Relay unless data fetching becomes a problem.
 
 ## Immutable.js
+
+React's core philosophy is avoiding state, data that changes over time. Immutable data is a powerful concept that helps avoid some of the problems of data changing over time. When you have a collection that you know can never change, it is much easier to reason about that data. You no longer have to do expensive comparisons or observe for changes since you are absolutely guaranteed a collection will never change.
+
+Immutable.js provides a powerful way to create immutable collections in JavaScript. It aligns very well with the philosophy of React and Flux.
