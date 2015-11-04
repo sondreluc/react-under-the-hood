@@ -1,7 +1,6 @@
 # Summary
 
-* [Introduction](README.md)
-* [Chapter 1: Introduction](chapter_1_introduction.md)
+* [Chapter 1: Introduction](chapters/chapter_1_introduction.md)
    * What is React?
    * Why Would I Want to Use React?
 * Chapter 2: Key Concepts
