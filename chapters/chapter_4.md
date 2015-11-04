@@ -1,10 +1,10 @@
 # Chapter 4: Relevant Libraries & Concepts
 
-React is not the only library from Facebook that is gaining momentum. There are 4 other libraries from Facebook that are usually mentioned in the same breath as React. No discussion of React can occur without talking about these libraries. 
-
-This tutorial is mostly about React, but we should briefly talk about these other libraries. 
+React is perhaps Facebook's most popular open source library, but it is not the only one. They have released quite a few interesting libraries lately. We should point out 4 libraries/concepts they have introduced since they are often mentioned in the same breath as React. This tutorial is mostly about React, but we should briefly talk about these other libraries. 
 
 ## Flux
+
+More of an architecture pattern than a library, Flux provides a more robust solution to organizing your data and business logic. As a React application grows, it can be useful to separate your core business logic from your UI components. Flux works in tandem with React's unidirectional data flow by using [EventEmitter](https://nodejs.org/api/events.html#events_class_events_eventemitter) as a basis 
 
 Flux is a library as well as an architecture pattern, originally developed at Facebook, for managing data and behavior across a large application. Without MVC, Facebook needed another framework that adheres to React's unidirectional data flow.
 
