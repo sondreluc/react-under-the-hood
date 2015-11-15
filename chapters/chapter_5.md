@@ -1,4 +1,4 @@
-# React Under the Hood: Chapter 5: Star Trek Video Game Demo
+# Chapter 5: Star Trek Video Game Demo
 
 This isn't a book about project organization. There are some conventions that are starting to materialize. You can learn more here: Khan Academy link
 
