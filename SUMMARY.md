@@ -19,7 +19,7 @@
    * GraphQL
    * Relay
    * Immutable.js
-* Chapter 5: Star Trek Video Game Tutorial
+* Chapter 5: Star Trek Video Game Demo
 * Chapter 6: Advanced topics
    * Prop types
    * Testing
