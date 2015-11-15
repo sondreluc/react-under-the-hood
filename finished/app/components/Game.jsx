@@ -3,8 +3,7 @@ var nav              = require('../utilities/starshipNavigation.js');
 var starData         = require('../data/starData.js');
 var Ship             = require('../data/Ship.js');
 var StarChart        = require('./StarChart.jsx');
-var ShipInfo         = require('./ShipInfo.jsx');
-var Navigation       = require('./Navigation.jsx');
+var HelmControl      = require('./HelmControl.jsx');
 var SetIntervalMixin = require('../mixins/SetIntervalMixin.jsx');
 
 module.exports = React.createClass({
@@ -22,29 +21,26 @@ module.exports = React.createClass({
           starData={starData}
           ship={ship}
           updateDestination={this.updateDestination}/>
-        <div className="helm">
-          <div id="helm-header">
-            <h1>Helm Control</h1>
-          </div>
-          <ShipInfo ship={ship} updateShip={this.updateShip} />
-          <Navigation
-            ship={ship}
-            starData={starData}
-            updateSpeed={this.updateSpeed}
-            engageWarpDrive={this.engageWarpDrive}
-            updateDestination={this.updateDestination}/>
-        </div>
+        <HelmControl
+          starData={starData}
+          ship={ship}
+          updateShipInfo={this.updateShipInfo}
+          updateDestination={this.updateDestination}
+          updateSpeed={this.updateSpeed}
+          engageWarpDrive={this.engageWarpDrive}/>
       </div>
     );
   },
 
-  updateShip: function(ship) {
+  updateShipInfo: function(info) {
+    var ship = this.state.ship;
+    ship.info = info;
     this.setState({ship: ship});
   },
 
-  updateDestination: function(destination) {
+  updateDestination: function(newDestination) {
     var ship = this.state.ship;
-    ship.destination = destination;
+    ship.destination = newDestination;
     this.setState({ship: ship});
   },
 
@@ -55,16 +51,15 @@ module.exports = React.createClass({
   },
 
   engageWarpDrive: function() {
-    this.setInterval(this.updateShipPosition, 10);
+    this.setInterval(this.updateShipPosition, 30);
   },
 
   updateShipPosition: function() {
     var ship = this.state.ship;
-    var nextPos = nav.nextPositionToDestination(ship);
     if (nav.destinationReached(ship)) {
       this.clearIntervals();
     } else {
-      ship.position = nextPos;
+      ship.position = nav.nextPositionToDestination(ship);
       this.setState({ship: ship});
     }
   }

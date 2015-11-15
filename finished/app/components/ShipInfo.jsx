@@ -3,34 +3,39 @@ var EditableElement  = require('./EditableElement.jsx');
 
 module.exports = React.createClass({
   render: function() {
-    var ship = this.props.ship;
-    var info = ship.info;
+    var info = this.props.info;
     return (
       <div className="ship-info">
         <h2>Ship Info</h2>
-        {this.renderElement('shipName', info.shipName, 'Ship Name')}
-        {this.renderElement('captain', info.captain, 'Captain Name')}
-        {this.renderElement('firstOfficer', info.firstOfficer, 'First Officer')}
-        {this.renderElement('chiefEngineer', info.chiefEngineer, 'Chief Engineer')}
-        {this.renderElement('tacticalOfficer', info.tacticalOfficer, 'Tactical Officer')}
-        {this.renderElement('helmsman', info.helmsman, 'Helmsman')}
+        {this.renderInputElements(this.props.info)}
       </div>
     );
   },
 
-  renderElement: function(keyName, item, defaultValue) {
-    return (
-      <EditableElement
-          keyName={keyName}
-          item={item}
-          defaultValue={defaultValue}
-          onEdit={this.updateShipInfo}/>
-    );
+  renderInputElements: function(info) {
+    return Object.keys(info).map(function(key, index) {
+      return (
+        <EditableElement
+          value={this.getValue(key)}
+          key={key}
+          onEdit={this.updateInfo.bind(this, key)}/>
+      );
+    }.bind(this));
   },
 
-  updateShipInfo: function(key, newValue) {
-    var ship = this.props.ship;
-    ship.info[key] = newValue;
-    this.props.updateShip(ship);
+  updateInfo: function(key, newValue) {
+    var info = this.props.info;
+    info[key] = newValue;
+    this.props.updateShipInfo(info);
+  },
+
+  getValue: function(key) {
+    return this.props.info[key] || this.keyToValue(key);
+  },
+
+  keyToValue: function(key) {
+    // insert a space before all caps and upper case the first character
+    return key.replace(/([A-Z])/g, ' $1')
+      .replace(/^./, function(str){ return str.toUpperCase(); })
   }
 });
