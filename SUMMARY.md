@@ -24,5 +24,5 @@
    * Prop types
    * Testing
    * Optimization
-   * Patterns and Antipatterns
+   * Patterns and Anti-patterns
 
