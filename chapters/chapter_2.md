@@ -125,7 +125,7 @@ var Cat = React.createClass({
   render: function() {
     return (
       <div>
-        <p>Your cat's name is: {this.state.name}</p>
+        <p>Your cat name is: {this.state.name}</p>
         <input type="text" onChange={this.updateName} />
       </div>
     );
