@@ -6,3 +6,5 @@ By now, we'be already gone through most of the important parts of React's API. I
 
 We're going to get started building out Star Trek video game. Once we're finished, it will look something like this:
 
+![finished demo](../images/01_finished_demo.png)
+
