@@ -9,7 +9,7 @@ module.exports = React.createClass({
         <h2>Warp Drive</h2>
         <span>WARP:</span>
         <EditableElement
-          value={this.props.ship.speed}
+          value={this.props.speed}
           onEdit={this.updateSpeed}/>
         <div className="arrow-controls">
           <button onClick={this.incrementSpeed.bind(this, 1)}>&#11014;</button>
@@ -30,7 +30,7 @@ module.exports = React.createClass({
   },
 
   incrementSpeed: function(dSpeed) {
-    var currentSpeed = this.props.ship.speed;
+    var currentSpeed = this.props.speed;
     var newSpeed = Math.floor(currentSpeed + dSpeed);
     if (0 <= newSpeed && newSpeed < 10) {
       this.props.updateSpeed(newSpeed);

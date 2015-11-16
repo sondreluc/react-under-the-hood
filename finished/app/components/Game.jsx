@@ -24,23 +24,23 @@ module.exports = React.createClass({
         <HelmControl
           starData={starData}
           ship={ship}
-          updateShipInfo={this.updateShipInfo}
           updateDestination={this.updateDestination}
+          updateShipInfo={this.updateShipInfo}
           updateSpeed={this.updateSpeed}
           engageWarpDrive={this.engageWarpDrive}/>
       </div>
     );
   },
 
-  updateShipInfo: function(info) {
-    var ship = this.state.ship;
-    ship.info = info;
-    this.setState({ship: ship});
-  },
-
   updateDestination: function(newDestination) {
     var ship = this.state.ship;
     ship.destination = newDestination;
+    this.setState({ship: ship});
+  },
+
+  updateShipInfo: function(info) {
+    var ship = this.state.ship;
+    ship.info = info;
     this.setState({ship: ship});
   },
 

@@ -5,16 +5,15 @@ var CourseControl        = require('./CourseControl.jsx');
 
 module.exports = React.createClass({
   render: function() {
-    var ship = this.props.ship
+    var ship = this.props.ship;
     return (
       <div className="navigation">
         <NavigationDashboard ship={ship}/>
         <CourseControl
           starData={this.props.starData}
-          ship={ship}
           updateDestination={this.props.updateDestination}/>
         <WarpDriveControls
-          ship={ship}
+          speed={ship.speed}
           updateSpeed={this.props.updateSpeed}
           engageWarpDrive={this.props.engageWarpDrive}/>
       </div>
