@@ -1,4 +1,4 @@
-var starUtils = {
+module.exports = {
   getStarNames: function(stars) {
     return stars.map(function(star) { return star.name });
   },
@@ -7,5 +7,3 @@ var starUtils = {
     return stars.filter(function(star) { return star.name === name })[0];
   }
 };
-
-module.exports = starUtils;
