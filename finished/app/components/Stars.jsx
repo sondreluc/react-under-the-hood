@@ -23,7 +23,7 @@ module.exports = React.createClass({
     var textAttr = {
       x: star.position[0] + 5,
       y: star.position[1] + 5,
-      className: 'star-name' + ' ' + this.jurisdictionToClassName(star)
+      className: 'star-name' + ' ' + star.jurisdiction
     };
     return (
       <g key={index}>
@@ -33,10 +33,5 @@ module.exports = React.createClass({
         <circle {...circleAttr}></circle>
       </g>
     );
-  },
-
-  jurisdictionToClassName: function(star) {
-    var jurisdiction = star.jurisdiction;
-    return jurisdiction.toLowerCase().replace(/\s+/g, '-')
   }
 });
