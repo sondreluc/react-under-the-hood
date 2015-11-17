@@ -69,3 +69,98 @@ module.exports = React.createClass({
 ```
 
 At this point, if you navigate to `localhost:4000` you should see this:
+
+![hello world](../images/02_hello_world.png)
+
+This is something like a pre-flight check to make sure everything is set up correctly before we move on.
+
+Let's talk about exactly what is going on here. In `Game.jsx` we are exporting a component with a very simple `render()` function. You may recall that JSX does not return actual DOM element but rather it transforms into React's API for creating Virtual DOM elements. In this case, it will become `React.createElement('h1', {}, 'Hello, World!')`.
+
+Then, in `index.jsx` we will render `<Game />` to the DOM. JSX will infer the name of a component based on the name of the variable that contains it. If we changed `Game` to `Cats` the application would still render correctly.
+
+## Star Chart
+
+Now let's begin by rendering a star chart. Star system data is already available for you under `unfinished/app/data/StarData.js`.
+
+We are going to render the star chart using SVG. React supports most SVG elements, except for a few which we will go into later. We are going to create an SVG element that is 1000px X 600px. Then, we are going to map over all the star system data and render an SVG `circle` (representing the star system) and `text` element with the name of the system. Then, we are also going to use the jurisdiction of the star system as the circle's class name so we can easily color each star system.
+
+Let's create our `StarChart` component under `unfinished/app/components/StarChart.jsx`.
+
+```
+# unfinished/app/components/StarChart.jsx
+
+var StarChart = React.createClass({
+  render: function() {
+    var props = this.props;
+    return (
+      <div className="star-chart">
+        <svg width="1000" height="600">
+          {props.starData.map(this.renderStars)}
+        </svg>
+      </div>
+    );
+  },
+
+  renderStars: function(star) {
+    var circleAttr = {
+      cx: star.position[0],
+      cy: star.position[1],
+      r: 2,
+      className: 'star-circle'
+    };
+    var textAttr = {
+      x: star.position[0] + 5,
+      y: star.position[1] + 5,
+      className: 'star-name' + ' ' + this.jurisdictionToClassName(star)
+    };
+    return (
+      <g key={star.id}>
+        <text {...textAttr}>
+          {star.name}
+        </text>
+        <circle {...circleAttr}></circle>
+      </g>
+    );
+  },
+
+  jurisdictionToClassName: function(star) {
+    var jurisdiction = star.jurisdiction;
+    return jurisdiction.toLowerCase().replace(/\s+/g, '-')
+  }
+});
+
+module.exports = StarChart;
+```
+
+You may be wondering why we're using `className` instead of `class` to set an elements class. That's because `class` is a reserved word in JavaScript, and `className` is the DOM API for setting a class in JavaScript.
+
+The curly braces in our return value for our `render` function allows us to run JavaScript expressions in our JSX code. There we're accessing the star data which will be passed into this component as props, and then mapping over that data to return an SVG `circle` and a text element with the name of the system.
+
+In our `renderStars` function, we're setting up the attributes for our circle and text elements in an object. By doing it this way, we can use the [spread operator](https://facebook.github.io/react/docs/jsx-spread.html) to expand that object into arguments using the `...` syntax. The spread operator is supported by JSX and is supported for arrays in ES2015 and is proposed for objects is ES2016. The equivalent expression would look something like this:
+
+
+```
+<text x={star.position[0] + 5} y={star.position[1] + 5} className={'star-name' + ' ' + this.jurisdictionToClassName(star)}/>
+```
+
+But with the spread operator, we can easily set up the arguments for our element elsewhere and pass it in with a much cleaner syntax.
+
+What's not clear from our code here is that we're dealing with two limitations of the React's diffing algorithm here. Firstly, we need to wrap our `circle` and `text` elements in a `g` element since React does not allow multiple return values for UI elements. Since JSX looks like HTML but is actually JavaScript, we need to wrap every JSX return value into one parent element, otherwise it won't work. Also, since we're returning multiple sibling star system elements, React needs a unique key for each sibling element to make insertions, substitutions, deletions, a O(n) operation with a hash map rather than a O(n^2) via other algorithms. The star systems already have a unique ID, so we're going to use that as our keys.
+
+Next, we need to actually call this component in our `App` component.
+
+```
+# unfinished/app/components/App.jsx
+var App = React.createClass({
+  render: function() {
+    var stars = Stars.getStarData();
+    return <StarChart starData={stars}/>
+  }
+});
+
+module.exports = App;
+```
+
+In `App`'s `render` function, we're going to get all the star data and then pass that into the `StarChart` as `props`. This is the ideal way of building a React component. You start with the child component you want to build and require data that you don't have yet, and then in the parent component figure out how to get that data to the child component. In that respect, it's similar to TDD (Test-Driven Development) in that you're starting with test for the code you wish you had, then you write the code itself.
+
+Now if we take a look at our browser, we should see the following:
