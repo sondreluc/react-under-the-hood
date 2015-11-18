@@ -82,11 +82,13 @@ Then, in `index.jsx` we will render `<Game />` to the DOM. JSX will infer the na
 
 Now let's begin by rendering a star chart. Star system data is already available for you under `unfinished/app/data/StarData.js`.
 
-We are going to render the star chart using SVG. React supports most SVG elements, except for a few which we will go into later. We are going to create an SVG element that is 1000px X 600px. Then, we are going to map over all the star system data and render an SVG `circle` (representing the star system) and `text` element with the name of the system. Then, we are also going to use the jurisdiction of the star system as the circle's class name so we can easily color each star system.
+We are going to render the star chart using SVG. There are a few really good reasons for this. SVG allows us to draw circles for star systems. Charting libraries like D3.js also use SVG, allowing us to use D3 later if we want to resize the chart. In addition, React supports most SVG elements, except for a few key exceptions.
+
+We are going to create an SVG element that is 1000px X 600px. Then, we are going to map over all the star system data and render an SVG `circle` (representing the star system) and `text` element with the name of the system. Then, we will use the jurisdiction of the star system as the circle's class name so we can easily color each star system.
 
 Let's create our `StarChart` component under `unfinished/app/components/StarChart.jsx`.
 
-```
+```javascript
 # unfinished/app/components/StarChart.jsx
 
 var React    = require('react');
@@ -98,20 +100,64 @@ module.exports = React.createClass({
     return (
       <div className="star-chart">
         <svg width="1000" height="600">
-          <Stars
-            starData={props.starData}
-            updateDestination={this.props.updateDestination}
-          />
+          <Stars starData={props.starData}/>
         </svg>
       </div>
     );
   }
 });
 ```
+You may be wondering why we are using `className` instead of `class` to set an elements class. That is because `class` is a reserved word in JavaScript. Since JSX is really just JavaScript, we cannot use `class`. Also, `className` is the DOM API for setting and retrieving the class of a DOM element in JavaScript, so React uses `className` for consistency.
 
-You may be wondering why we're using `className` instead of `class` to set an elements class. That's because `class` is a reserved word in JavaScript, and `className` is the DOM API for setting a class in JavaScript.
 
-The curly braces in our return value for our `render` function allows us to run JavaScript expressions in our JSX code. There we're accessing the star data which will be passed into this component as props, and then mapping over that data to return an SVG `circle` and a text element with the name of the system.
+Within our `StarChart` component, we are rendering a `Stars` component who's job it will be to render the stars. We are passing `starData` as `props` to `Stars. The curly braces in JSX allow us to execute JavaScript expressions in JSX.
+
+Let's go ahead and create our `Stars` component
+
+```javascript
+# unfinished/app/components/Stars.jsx
+
+var React = require('react');
+
+module.exports = React.createClass({
+  render: function() {
+    return (
+      <g>
+        {this.props.starData.map(this.renderStars)}
+      </g>
+    );
+  },
+
+  renderStars: function(star, index) {
+    var circleAttr = {
+      cx: star.position[0],
+      cy: star.position[1],
+      r: 2,
+      className: 'star-circle'
+    };
+    var textAttr = {
+      x: star.position[0] + 5,
+      y: star.position[1] + 5,
+      className: 'star-name' + ' ' + star.jurisdiction
+    };
+    return (
+      <g key={index}>
+        <text {...textAttr}>
+          {star.name}
+        </text>
+        <circle {...circleAttr}></circle>
+      </g>
+    );
+  }
+});
+```
+
+Let's take a look at our new `render()` function. `g` in SVG can be thought of as something akin to a `div` but not quite the same. Here we are using `g` in very similar way we would use a `div`, to contain related elements in one parent element. Inside of this `g` we are maping over our `starData` (which was passed in by the parent `StarChart` as a `prop`) and rendering a circle and text element for each star system. 
+
+At this point, you may have asked yourself why are we wrapping `starData` in a `g` element in our `render()` function. Since React abstracts the DOM via JavaScript, we cannot return sibling elements without it wrapped in a parent element. This is a limitation of the language since JavaScript functions have only one return value.
+
+
+The curly braces in our return value for our `render` function allows us to run JavaScript expressions in our JSX code. There we are accessing the star data which will be passed into this component as props, and then mapping over that data to return an SVG `circle` and a text element with the name of the system.
 
 In our `renderStars` function, we're setting up the attributes for our circle and text elements in an object. By doing it this way, we can use the [spread operator](https://facebook.github.io/react/docs/jsx-spread.html) to expand that object into arguments using the `...` syntax. The spread operator is supported by JSX and is supported for arrays in ES2015 and is proposed for objects is ES2016. The equivalent expression would look something like this:
 
