@@ -428,8 +428,12 @@ module.exports = React.createClass({
       .replace(/^./, function(str){ return str.toUpperCase(); })
   }
 });
-
 ```
+
+
+
+
+
 
 
 If you are really observant, you may have noticed that when `updateShip` gets called in the child component, the value of `this` would have changed. React automatically binds methods in it's components to it's current value of `this`, avoiding needless repetition.
@@ -438,49 +442,10 @@ As was mentioned before, all abstractions leak, and this is one place where the 
 
 Let's create a `ShipInfo` component which will be in charge of rendering the ship info and updating it.
 
-```javascript
-# unfinished/app/components/ShipInfo.jsx
-
-var ShipInfo = React.createClass({
-  render: function() {
-    var ship = this.props.ship;
-    var info = ship.info;
-    return (
-      <div className="ship-info">
-        <h2>Ship Info</h2>
-        {this.renderElement('shipName', info.shipName, 'Ship Name')}
-        {this.renderElement('captain', info.captain, 'Captain Name')}
-        {this.renderElement('firstOfficer', info.firstOfficer, 'First Officer')}
-        {this.renderElement('chiefEngineer', info.chiefEngineer, 'Chief Engineer')}
-        {this.renderElement('tacticalOfficer', info.tacticalOfficer, 'Tactical Officer')}
-        {this.renderElement('helmsman', info.helmsman, 'Helmsman')}
-      </div>
-    );
-  },
-
-  renderElement: function(keyName, item, defaultValue) {
-    return (
-      <EditableElement
-          keyName={keyName}
-          item={item}
-          defaultValue={defaultValue}
-          onEdit={this.updateShipInfo}/>
-    );
-  },
-
-  updateShipInfo: function(key, newValue) {
-    var ship = this.props.ship;
-    ship.info[key] = newValue;
-    this.props.updateShip(ship);
-  }
-});
-
-module.exports = ShipInfo;
-```
 
 `ShipInfo`'s `render` function is returning a list of `EditableElement` components which will display a piece of data and edit that data when clicked. We're taking a rather naive approach to rendering the `EditableElement`s. If the names of the keys for the ship info changes we would have to change this component as well. This is fine for now.
 
-```javascr
+```javascript
 # unfinished/app/components/EditableElement.jsx
 
 var EditableElement = React.createClass({
