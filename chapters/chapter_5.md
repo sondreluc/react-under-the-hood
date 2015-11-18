@@ -396,12 +396,12 @@ module.exports = React.createClass({
     return (
       <div className="ship-info">
         <h2>Ship Info</h2>
-        {this.renderInputElements(this.props.info)}
+        {this.renderElements(this.props.info)}
       </div>
     );
   },
 
-  renderInputElements: function(info) {
+  renderElements: function(info) {
     return Object.keys(info).map(function(key, index) {
       return (
         <EditableElement
