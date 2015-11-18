@@ -496,11 +496,9 @@ Now we should have our first component that actually updates state. If you navig
 
 We are doing pretty good at this point, however now we want to get started with laying the groundwork for space travel. 
 
-We are doing great so far but we still have more work before our starship goes where no one has gone before. 
+We want to be able to click on a star system and engage our warp engines. First, lets render a component that will display navigational data to the user. 
 
-We have just created our first component that actually changes state in the application rather than just render data. 
 
-Let's render another simple component that will display navigational data such as the current destination and heading.
 
 ```
 # unfinished/app/components/App.jsx
