@@ -357,6 +357,8 @@ This is a good place to talk about where to place business logic. A useful patte
 
 Therefore, we are creating a new method on `Game` called `updateShipInfo()`. This method is passed to `HelmControl` as `props` so that it can update ship information. Within `updateShipInfo()` we are taking in new `info` as an argument and updating our `ship` state with the new info via `setState()`. This will notify React of a change in our data model and trigger a re-render of `Game` and all of it's children.
 
+As was mentioned before, all abstractions leak, and this is one place where the Virtual DOM leaks. We have to notify our system that our state has changed. If JavaScript were truly reactive, the value of our new state would be updated automatically. But like most things in life, there are few things that are always a complete win -- everything is a tradeoff. While we do have to explicitly tell React about state changes, we know that once that state changes our app will resemble a static system. Our whole app is essentially a state machine, with all our components automatically snapping into place when the state of the world has changed.
+
 Let's create `HelmControl` in `unfinished/app/components/HelmControl.jsx`:
 
 ```javascript
@@ -381,7 +383,7 @@ module.exports = React.createClass({
 });
 ```
 
-We are passing the ship to `ShipInfo`, but we are also passing in the `updateShip` method as well. Since data in React is unidirectional, changes to `this.state.ship` can only occur where that state lives, which in this case is `Game`. Therefore, we need to pass a method to our child components if we want to update the state.
+We are passing the ship to `ShipInfo`, but we are also passing in the `updateShip` method as well. Since data in React is unidirectional, changes to `this.state.ship` can only occur where that state lives, which in this case is the `Game` component. Therefore, we need to pass a method to our child components if we want to update the state.
 
 Let's create `ShipInfo` in `unfinished/app/components/ShipInfo.jsx`:
 
@@ -406,7 +408,7 @@ module.exports = React.createClass({
       return (
         <EditableElement
           value={this.getValue(key)}
-          key={key}
+          key={index}
           onEdit={this.updateInfo.bind(this, key)}/>
       );
     }.bind(this));
@@ -430,50 +432,42 @@ module.exports = React.createClass({
 });
 ```
 
+Taking a look at our new `render()` function, we can see we are using `renderElements()` to figure out how to render all the ship information. `renderElements()` creates an array of keys from the "info" object, and then maps over them, returning `EditablElement`s. This is a component that can either display a value or can be edited inline but will need a function to call when editing is finished. Therefore, we are passing each `EditableElement` the value we want it to display and a `onEdit` event handler, as well as a `key` attribute. As mentioned before, list of sibling elements in React need a `key` attribute for performance reasons. We are using the index of the "keys" array to provide that unique identifier.
 
+If you are especially observant, you may have noticed that when we passed `updateShipInfo()` from `Game` to `HelmControl` to `ShipInfo`, we did not bind the value of `this` even though the value of `this` would have changed by the time it reached `shipInfo`. React's autobinding of `this` handles this for you in a performant way so you don't have to bind `this` everywhere. However, we are using `bind` in the `onEdit` event handler so we can bind the value of the first argument to `updateInfo()`, so that when `updateInfo()` is finally called in `EditableElement` all we need to do is pass the new value gathered from user input and call `updateInfo()`. We will see how that works in `EditableElement` in a moment.
 
-
-
-
-
-If you are really observant, you may have noticed that when `updateShip` gets called in the child component, the value of `this` would have changed. React automatically binds methods in it's components to it's current value of `this`, avoiding needless repetition.
-
-As was mentioned before, all abstractions leak, and this is one place where the Virtual DOM leaks. We have to notify our system that our state has changed. If JavaScript were truly reactive, the value of our new state would be updated automatically. But like most things in life, there are few things that are always a complete win -- everything is a tradeoff. While we do have to explicitly tell React about state changes, we know that once that state changes are app will resemble a static system. Our whole app is essentially a state machine, with all our components automatically snapping into place when the state of the world has changed.
-
-Let's create a `ShipInfo` component which will be in charge of rendering the ship info and updating it.
-
-
-`ShipInfo`'s `render` function is returning a list of `EditableElement` components which will display a piece of data and edit that data when clicked. We're taking a rather naive approach to rendering the `EditableElement`s. If the names of the keys for the ship info changes we would have to change this component as well. This is fine for now.
+Let's create our missing `EditableElement` in `unfinished/app/components/EditableElement.jsx`:
 
 ```javascript
 # unfinished/app/components/EditableElement.jsx
 
-var EditableElement = React.createClass({
+var React = require('react');
+
+module.exports = React.createClass({
   getInitialState: function() {
     return { editing: false };
   },
 
   render: function() {
-    return this.state.editing ? this.renderEdit() : this.renderValue()
+    var isEditing = this.state.editing;
+    return isEditing ? this.renderInputField() : this.renderParagraph()
   },
 
-  renderValue: function() {
-    var props = this.props;
-    return <p onClick={this.enterEditState}>{props.item || props.defaultValue}</p>
-  },
-
-  enterEditState: function() {
-    this.setState({ editing: true });
-  },
-
-  renderEdit: function() {
+  renderInputField: function() {
     return (
       <input type="text"
         autoFocus="true"
-        defaultValue={this.props.item}
         onBlur={this.finishEdit}
         onKeyPress={this.checkEnter} />
     );
+  },
+
+  renderParagraph: function() {
+    return <p onClick={this.enterEditState}>{this.props.value}</p>
+  },
+
+  enterEditState: function() {
+    this.setState({editing: true});
   },
 
   checkEnter: function(e) {
@@ -483,14 +477,418 @@ var EditableElement = React.createClass({
   },
 
   finishEdit: function(e) {
-    var keyName = this.props.keyName;
     var newValue = e.target.value;
-    this.props.onEdit(keyName, newValue);
+    this.props.onEdit(newValue);
     this.setState({editing: false});
   }
 });
-
-module.exports = EditableElement;
 ```
 
-This component has two states: editing and non-editing. When editing is true, it will render an input field which will watch for the "Enter" key and for clicking out of the input field, which will then trigger an update up the input value. When editing is false, it will just render the value of the ship info.
+The purpose of this component is as a reusable child component for rendering a DOM element that can be edited inline by user input. This component has two states: editing and non-editing. When editing is false, it will just render the value passing into it. When editing is true, it will render an input field which will watch for the "Enter" key and for clicking out of the input field, which will then trigger an update up the input value. When it leaves the "editing" state, it will call the `onEdit()` function that was passed into it as props from it's parent component.
+
+Now we should have our first component that actually updates state. If you navigate to the browser and refresh, you should see this:
+
+![ship info](../images/05_ship_info.png)
+
+We've just created our first component that actually changes state in the application rather than just render data. 
+
+Let's render another simple component that will display navigational data such as the current destination and heading.
+
+```
+# unfinished/app/components/App.jsx
+
+var App = React.createClass({
+
+  ...
+
+  render: function() {
+    var ship  = this.state.ship;
+    var stars = Stars.getStarData();
+    return (
+      <div>
+        <StarChart
+          starData={stars}
+          ship={ship} />
+        <div className="helm">
+          <div id="helm-header">
+            <h1>Helm Control</h1>
+          </div>
+          <ShipInfo ship={ship} updateShip={this.updateShip} />
+          <Navigation ship={ship}/>
+        </div>
+      </div>
+    );
+  },
+  
+  ...
+});
+
+module.exports = App;
+```
+
+```
+# unfinished/app/components/Navigation.jsx
+
+var Navigation = React.createClass({
+  render: function() {
+    var ship = this.props.ship
+    return (
+      <div className="navigation">
+        <NavigationDashboard ship={ship}/>
+      </div>
+    );
+  }
+});
+
+module.exports = Navigation;
+```
+
+```
+# unfinished/app/components/NavigationDashboard.jsx
+
+var NavigationDashboard = React.createClass({
+  render: function() {
+    var ship = this.props.ship
+    var destination = ship.destination;
+    var posX = Math.round(ship.position[0]);
+    var posY = Math.round(ship.position[1]);
+    return (
+      <div className="navigation-dashboard">
+        <h2>Navigation</h2>
+        <p>Destination:</p>
+        <p>{destination.name.toUpperCase()}</p>
+        <p>Current Position:</p>
+        <p>{posX}-MARK-{posY}</p>
+        <p>Heading:</p>
+        <p>{nav.heading(ship)}-MARK-0</p>
+      </div>
+    );
+  }
+});
+
+module.exports = NavigationDashboard;
+```
+
+This component is completely stateless which is what we want. Whenever our ship data changes, we will recalculate the the heading using some utility functions under `nav`. The complicated math needed to make this work is abstracted for you, but you can take a look at the source code if you wish under `/utilities`.
+
+Now that we can see our Navigation Dashboard, let's add a way to update our destination. We want to be able to click a star system and automatically update our destination.
+
+```
+# unfinished/app/components/App.jsx
+
+var App = React.createClass({
+
+  ...
+
+  render: function() {
+    var ship  = this.state.ship;
+    var stars = Stars.getStarData();
+    return (
+      <div>
+        <StarChart
+          starData={stars}
+          ship={ship}
+          updateDestination={this.updateDestination}/>
+        <div className="helm">
+          <div id="helm-header">
+            <h1>Helm Control</h1>
+          </div>
+          <ShipInfo ship={ship} updateShip={this.updateShip} />
+          <Navigation
+            ship={ship}/>
+        </div>
+      </div>
+    );
+  },
+
+  ...
+
+  updateDestination: function(destination) {
+    var ship = this.state.ship;
+    ship.destination = destination;
+    this.setState({ship: ship});
+  },
+});
+
+module.exports = App;
+```
+
+`StarChart` now receives `updateDestination` which it will attach to each star system. Remember, React implements a synthetic event system meaning that even though we have over 100 star systems, we're not taking a performance hit by attaching event listeners to each system. All these event listeners only exist in memory.
+
+```
+# unfinished/app/components/StarChart.jsx
+
+var StarChart = React.createClass({
+
+  ...
+  
+  renderStars: function(star) {
+  
+    ...
+    
+    return (
+      <g key={star.id}>
+        <text {...textAttr} onClick={this.props.updateDestination.bind(null, star)}>
+          {star.name}
+        </text>
+        <circle {...circleAttr}></circle>
+      </g>
+    );
+  },
+  
+  ...
+  
+});
+
+module.exports = StarChart;
+```
+
+Now when you click a star system, your starship will face the direction of the star system and the Navigation Dashboard will reflect your new destination and heading. Now let's add some controls so we can actually move our ship in space.
+
+```
+# unfinished/app/components/App.jsx
+
+var App = React.createClass({
+
+  mixins: [SetIntervalMixin],
+  
+  ...
+
+  render: function() {
+    var ship  = this.state.ship;
+    var stars = Stars.getStarData();
+    return (
+      <div>
+        <StarChart
+          starData={stars}
+          ship={ship}
+          updateDestination={this.updateDestination}/>
+        <div className="helm">
+          <div id="helm-header">
+            <h1>Helm Control</h1>
+          </div>
+          <ShipInfo ship={ship} updateShip={this.updateShip} />
+          <Navigation
+            ship={ship}
+            updateSpeed={this.updateSpeed}
+            engageWarpDrive={this.engageWarpDrive}
+            updateDestination={this.updateDestination}/>
+        </div>
+      </div>
+    );
+  },
+  
+  ...
+
+  updateSpeed: function(newSpeed) {
+    var ship = this.state.ship;
+    ship.speed = newSpeed;
+    this.setState({ship: ship});
+  },
+
+  engageWarpDrive: function() {
+    this.setInterval(this.updateShipPosition, 10);
+  },
+
+  updateShipPosition: function() {
+    var ship = this.state.ship;
+    var nextPos = nav.nextPositionToDestination(ship);
+    if (nav.destinationReached(ship)) {
+      this.clearIntervals();
+    } else {
+      ship.position = nextPos;
+      this.setState({ship: ship});
+    }
+  
+});
+
+module.exports = App;
+```
+
+We need to pass some methods to `Navigation` so we can update the state of the ship. We need to be able to update it's destination, speed, and whether or not to engage the warp drive.
+
+When the warp drive is engaged, we need to start moving our ship on the star chart. The way we're going to move our ship is by setting an interval which will run a `nav.nextPositionToDestination` callback. Every 10 milliseconds we will calculate the next position based on the direction and speed of the starship. Then, we're going to update the starship position to the updated position, which will trigger a re-render. Again, most of this math is extracted for you.
+
+One thing that we are introducing here is a "mixin". If you're familiar with Ruby, they're like Ruby modules. React introduces a form of inheritance through mixins where you can share behavior between components. We could put all the methods for updating a ship's state via a mixin if we wish. Here, we're only using it for setting and clearing intervals. Intervals can lead to a memory leak if we forget to clear them, so we're going to use a mixin to put all our intervals in an array and then clear all those intervals when we're done. The mixin is already written for you but you can take a quick look under `/mixin`.
+
+Let's go ahead and add a `WarpDriveControls` component to our `Navigation` component.
+
+```
+# unfinished/app/components/Navigation.jsx
+
+var Navigation = React.createClass({
+  render: function() {
+    var ship = this.props.ship
+    return (
+      <div className="navigation">
+        <NavigationDashboard ship={ship}/>
+        <WarpDriveControls
+          ship={ship}
+          updateSpeed={this.props.updateSpeed}
+          engageWarpDrive={this.props.engageWarpDrive}/>
+      </div>
+    );
+  }
+});
+
+module.exports = Navigation;
+```
+
+```
+# unfinished/app/components/WarpDriveControls.jsx
+
+var WarpDriveControls = React.createClass({
+  render: function() {
+    return (
+      <div className="navigational-controls">
+        <h2>Warp Drive</h2>
+        <span>WARP:</span>
+        <EditableElement
+          keyName="name"
+          item={this.props.ship.speed}
+          defaultValue="Full Stop"
+          onEdit={this.updateSpeed}/>
+        <div className="arrow-controls">
+          <button onClick={this.incrementSpeed.bind(this, 1)}>&#11014;</button>
+          <button onClick={this.incrementSpeed.bind(this, -1)}>&#11015;</button>
+        </div>
+        <div className="engage">
+          <button onClick={this.props.engageWarpDrive}>Engage</button>
+        </div>
+      </div>
+    );
+  },
+
+  updateSpeed: function(keyName, newValue) {
+    var newSpeed = parseInt(newValue, 10);
+    this.props.updateSpeed(newSpeed);
+  },
+
+  incrementSpeed: function(dSpeed) {
+    var currentSpeed = this.props.ship.speed;
+    var newSpeed = Math.floor(currentSpeed + dSpeed);
+    if (0 <= newSpeed && newSpeed < 10) {
+      this.props.updateSpeed(newSpeed);
+    }
+  }
+});
+
+module.exports = WarpDriveControls;
+```
+
+Notice that we're reusing EditableElement here. This is the beauty of React. Components are truly reusable. Now you can chart a new course by clicking a star system, choose the warp speed of your starship, and engage the warp drive engines.
+
+Let's add another component for charting a course by typing into a field rather than clicking on the starchart. That could be useful if you know the name of the starsystem but don't remember where it is exactly.
+
+More importantly, this gives us an opportunity to demonstrate how React interacts with third-party libraries.
+
+```
+# unfinished/app/components/App.jsx
+
+var App = React.createClass({
+
+  ...
+
+  render: function() {
+    var ship  = this.state.ship;
+    var stars = Stars.getStarData();
+    return (
+      ...
+        <Navigation
+          ship={ship}
+          stars={stars}
+          updateSpeed={this.updateSpeed}
+          engageWarpDrive={this.engageWarpDrive}
+          updateDestination={this.updateDestination}/>
+      ...
+    );
+  },
+
+  ...
+  
+});
+
+module.exports = App;
+```
+
+The only change in `App` is passing star data to the Navigation component.
+
+```
+# unfinished/app/components/Navigation.jsx
+
+
+var Navigation = React.createClass({
+  render: function() {
+    var ship = this.props.ship
+    return (
+      <div className="navigation">
+        <NavigationDashboard ship={ship}/>
+        <CourseControl
+          stars={this.props.stars}
+          ship={ship}
+          updateDestination={this.props.updateDestination}/>
+        <WarpDriveControls
+          ship={ship}
+          updateSpeed={this.props.updateSpeed}
+          engageWarpDrive={this.props.engageWarpDrive}/>
+      </div>
+    );
+  }
+});
+
+module.exports = Navigation;
+```
+
+We've added a `CourseControl` component and pass in star data, ship data, and an `updateDestination` method as props.
+
+For the `CourseControl` component, we're going to use jQuery Autocomplete to render a search box for searching and setting a new destination. There are libraries for text searching better suited for React, but we wanted to use a library not specifically designed for React. We're going to give jQuery Autocomplete access to the DOM via `ReactDOM.findDOMNode` along with a `ref` to DOM node we're looking for. We need to set this `ref` attribute explicitly in the DOM node we want to look for later.
+
+```
+# unfinished/app/components/CourseControl.jsx
+
+var CourseControl = React.createClass({
+  render: function() {
+    return (
+    <div className="course-control">
+      <h2>Course Control</h2>
+      <input type="text"
+        className="search"
+        placeholder="Star System"
+        ref="search"/>
+    </div>
+    );
+  },
+
+  componentDidMount: function() {
+    this.autocomplete();
+  },
+
+  componentDidUpdate: function() {
+    this.autocomplete();
+  },
+
+  autocomplete: function() {
+    var stars = this.props.stars
+    var starNames = utils.getStarNames(stars);
+    $(ReactDOM.findDOMNode(this.refs.search)).autocomplete({
+      source: starNames,
+      minLength: 3,
+      select: function(event, ui) {
+        var starName  = ui.item.value;
+        var system    = utils.findSystem(stars, starName);
+        this.props.updateDestination(system);
+      }.bind(this),
+      messages: {
+        noResults: '',
+        results: function() {}
+      }
+    });
+  }
+});
+
+module.exports = CourseControl;
+```
+
+## Conclusion
+
+You've just built your first React game! Of course, there is still a lot of functionality to go. This could probably be rendered in canvas rather than SVG and HTML, and we could add opposing forces and a better way to distinguish territory boundaries. Still, this demo properly demonstrates React's gaming roots, and how you can create applications with non-trivial functionality with as little state as possible.
