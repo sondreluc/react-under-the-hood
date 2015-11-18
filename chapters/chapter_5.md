@@ -357,11 +357,34 @@ This is a good place to talk about where to place business logic. A useful patte
 
 Therefore, we are creating a new method on `Game` called `updateShipInfo()`. This method is passed to `HelmControl` as `props` so that it can update ship information. Within `updateShipInfo()` we are taking in new `info` as an argument and updating our `ship` state with the new info via `setState()`. This will notify React of a change in our data model and trigger a re-render of `Game` and all of it's children.
 
-We're passing the ship to `ShipInfo`, but we're also passing in the `updateShip` method as well. Since data in React is unidirectional, changes to `this.state.ship` can only occur where that state lives, which in this case is `App`. Therefore, we need to pass a method to our child components if we want to update the state.
+Let's create `HelmControl` in `unfinished/app/components/HelmControl`:
 
-If you're observant you may have noticed that when `updateShip` gets called in the child component, the value of `this` would have changed. React automatically binds methods in it's components to it's current value of `this`, avoiding needless repetition.
+```javascript
+var React      = require('react');
+var ShipInfo   = require('./ShipInfo.jsx');
 
-Inside `updateShip`, we are taking a new ship as an argument, which we will then update the current state of the ship to equal the one passed in as an argument. Updating the state via `setState` tells React that the state has changed, triggering a re-render. 
+module.exports = React.createClass({
+  render: function() {
+    var props = this.props;
+    var ship = props.ship;
+    return (
+      <div className="helm">
+        <div id="helm-header">
+          <h1>Helm Control</h1>
+        </div>
+        <ShipInfo info={ship.info} updateShipInfo={props.updateShipInfo} />
+      </div>
+    );
+  }
+});
+```
+
+We are passing the ship to `ShipInfo`, but we are also passing in the `updateShip` method as well. Since data in React is unidirectional, changes to `this.state.ship` can only occur where that state lives, which in this case is `Game`. Therefore, we need to pass a method to our child components if we want to update the state.
+
+
+
+
+If you are really observant, you may have noticed that when `updateShip` gets called in the child component, the value of `this` would have changed. React automatically binds methods in it's components to it's current value of `this`, avoiding needless repetition.
 
 As was mentioned before, all abstractions leak, and this is one place where the Virtual DOM leaks. We have to notify our system that our state has changed. If JavaScript were truly reactive, the value of our new state would be updated automatically. But like most things in life, there are few things that are always a complete win -- everything is a tradeoff. While we do have to explicitly tell React about state changes, we know that once that state changes are app will resemble a static system. Our whole app is essentially a state machine, with all our components automatically snapping into place when the state of the world has changed.
 
