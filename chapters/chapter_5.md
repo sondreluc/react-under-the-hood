@@ -497,37 +497,27 @@ Now we should have our first component that actually updates state. If you navig
 We are doing pretty good at this point, however now we want to get started with laying the groundwork for space travel. We want to be able to click on a star system and engage our warp engines. First, lets render a component that will display navigational data to the user. Let's open `HelmControl` and add a `NavigationDashboard` component.
 
 ```
-# unfinished/app/components/App.jsx
+# unfinished/app/components/HelmControl.jsx
 
-var App = React.createClass({
+var React = require('react');
+var ShipInfo = require('./ShipInfo.jsx');
+var NavigationDashboard = require('./NavigationDashboard.jsx');
 
-  ...
-
+module.exports = React.createClass({
   render: function() {
-    var ship  = this.state.ship;
-    var stars = Stars.getStarData();
+    var props = this.props;
+    var ship = props.ship;
     return (
-      <div>
-        <StarChart
-          starData={stars}
-          ship={ship} />
-        <div className="helm">
-          <div id="helm-header">
-            <h1>Helm Control</h1>
-          </div>
-          <ShipInfo ship={ship} updateShip={this.updateShip} />
-          <Navigation ship={ship}/>
+      <div className="helm">
+        <div id="helm-header">
+          <h1>Helm Control</h1>
         </div>
+        <ShipInfo info={ship.info} updateShipInfo={props.updateShipInfo} />
+        <NavigationDashboard ship={ship}/>
       </div>
     );
-  },
-  
-  ...
+  }
 });
-
-module.exports = App;
-```
-
 ```
 # unfinished/app/components/Navigation.jsx
 
