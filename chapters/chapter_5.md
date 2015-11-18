@@ -321,37 +321,39 @@ It's great that we are displaying an accurate representation of the Alpha Quadra
 
 Let's begin creating a component allowing us to do just that. We are going to start by rendering a `HelmControl` component in `Game`.
 
-```
-# unfinished/app/components/App.jsx
+```javascript
+# unfinished/app/components/Game.jsx
 
-var App = React.createClass({
 ...
 
+var HelmControl = require('./HelmControl.jsx');
+
+module.exports = React.createClass({
+
+  getInitialState: function() {
+    return { ship: new Ship() };
+  },
+
   render: function() {
-    var ship  = this.state.ship;
-    var stars = Stars.getStarData();
+    var ship = this.state.ship;
     return (
       <div>
-        <StarChart
-          starData={stars}
-          ship={ship} />
-        <div className="helm">
-          <div id="helm-header">
-            <h1>Helm Control</h1>
-          </div>
-          <ShipInfo ship={ship} updateShip={this.updateShip} />
-        </div>
+        <StarChart starData={starData} ship={ship} />
+        <HelmControl ship={ship} updateShipInfo={this.updateShipInfo} />
       </div>
     );
   },
 
-  updateShip: function(ship) {
-   this.setState({ship: ship});
+  updateShipInfo: function(info) {
+    var ship = this.state.ship;
+    ship.info = info;
+    this.setState({ship: ship});
   },
 });
 
-module.exports = App;
 ```
+
+This is a good place to talk about where to place business logic. A useful pattern in React is "smart and dumb components". At the core of this pattern is seperating components between those that hold state vs those are basically just idempotent functions. At the heart of this application is the `Ship` which contains all the state for the starship: where it is, where it's going, who are the crew members, and what is it's current speed. Child components should not know how to update this state -- only `Game` will know how to do that. `Game` will be the "smart" component while most child components will be "dumb". To update ship state, child components will call on functions that are originally passed down from 
 
 We're going to create a "helm" element with the `ShipInfo` component inside it. We could create a `Heml` component instead, but we're going to create quite a few components here. For learning purposes we're going to avoid nesting our components too far down, but if you wanted to add other components like a communication panel, you would certainly want to create a `Heml` component to encapsulate that functionality.
 
@@ -365,7 +367,7 @@ As was mentioned before, all abstractions leak, and this is one place where the 
 
 Let's create a `ShipInfo` component which will be in charge of rendering the ship info and updating it.
 
-```
+```javascript
 # unfinished/app/components/ShipInfo.jsx
 
 var ShipInfo = React.createClass({
@@ -407,7 +409,7 @@ module.exports = ShipInfo;
 
 `ShipInfo`'s `render` function is returning a list of `EditableElement` components which will display a piece of data and edit that data when clicked. We're taking a rather naive approach to rendering the `EditableElement`s. If the names of the keys for the ship info changes we would have to change this component as well. This is fine for now.
 
-```
+```javascr
 # unfinished/app/components/EditableElement.jsx
 
 var EditableElement = React.createClass({
