@@ -519,26 +519,18 @@ module.exports = React.createClass({
   }
 });
 ```
-# unfinished/app/components/Navigation.jsx
 
-var Navigation = React.createClass({
-  render: function() {
-    var ship = this.props.ship
-    return (
-      <div className="navigation">
-        <NavigationDashboard ship={ship}/>
-      </div>
-    );
-  }
-});
+We are essentially adding just two lines of code. We are requiring a `NavigationDashboard` file, and then rendering a new `NavigationDashboard` component. Nothing new.
 
-module.exports = Navigation;
-```
+Let's create this new component in `unfinished/app/components/NavigationDashboard.jsx`:
 
-```
+```javascript
 # unfinished/app/components/NavigationDashboard.jsx
 
-var NavigationDashboard = React.createClass({
+var React = require('react');
+var nav   = require('../utilities/starshipNavigation.js');
+
+module.exports = React.createClass({
   render: function() {
     var ship = this.props.ship
     var destination = ship.destination;
@@ -558,7 +550,6 @@ var NavigationDashboard = React.createClass({
   }
 });
 
-module.exports = NavigationDashboard;
 ```
 
 This component is completely stateless which is what we want. Whenever our ship data changes, we will recalculate the the heading using some utility functions under `nav`. The complicated math needed to make this work is abstracted for you, but you can take a look at the source code if you wish under `/utilities`.
