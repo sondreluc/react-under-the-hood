@@ -319,7 +319,7 @@ module.exports = React.createClass({
 
 It's great that we are displaying an accurate representation of the Alpha Quadrant with a early version of the USS Enterprise. However, we want to update the name of our starship, along with the members of our crew. 
 
-You may have noticed that we added a `crew` object to `Ship.js`. Let's create a component where we can render the ship information, including the crew and ship name, which we can then edit in-line.
+Let's begin creating a component allowing us to do just that. We are going to start by rendering a `HelmControl` component in `Game`.
 
 ```
 # unfinished/app/components/App.jsx
