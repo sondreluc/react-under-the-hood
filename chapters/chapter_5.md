@@ -110,7 +110,7 @@ module.exports = React.createClass({
 You may be wondering why we are using `className` instead of `class` to set an elements class. That is because `class` is a reserved word in JavaScript. Since JSX is really just JavaScript, we cannot use `class`. Also, `className` is the DOM API for setting and retrieving the class of a DOM element in JavaScript, so React uses `className` for consistency.
 
 
-Within our `StarChart` component, we are rendering a `Stars` component who's job it will be to render the stars. We are passing `starData` as `props` to `Stars. The curly braces in JSX allow us to execute JavaScript expressions in JSX.
+Within our `StarChart` component, we are rendering a `Stars` component who's job it will be to render the stars. We are passing `starData` as `props` to `Stars`.
 
 Let's go ahead and create our `Stars` component
 
@@ -152,15 +152,12 @@ module.exports = React.createClass({
 });
 ```
 
-Let's take a look at our new `render()` function. `g` in SVG can be thought of as something akin to a `div` but not quite the same. Here we are using `g` in very similar way we would use a `div`, to contain related elements in one parent element. Inside of this `g` we are maping over our `starData` (which was passed in by the parent `StarChart` as a `prop`) and rendering a circle and text element for each star system. 
+Let's take a look at our new `render()` function. The `g` in SVG is a container used to group  can be thought of as something akin to a `div` but not quite the same. Here we are using `g` in very similar way we would use a `div`, to contain related elements in one parent element. Inside of this `g` we are maping over our `starData` (which was passed in by the parent `StarChart` as a `prop`) and rendering a circle and text element for each star system. 
+Let's take a look at our new `render()` function. The `g` in SVG is a container used to group objects. It can be thought of as something akin to a `div`. Here we are using `g` in very similar way we would use a `div`, to contain related elements in one parent element. Within this `g`, we find a set of curly braces with a JavaScript expression. Curly braces is JSX allow us to execute JavaScript expressions in a manner very similar to Handlebars.
 
-At this point, you may have asked yourself why are we wrapping `starData` in a `g` element in our `render()` function. Since React abstracts the DOM via JavaScript, we cannot return sibling elements without it wrapped in a parent element. This is a limitation of the language since JavaScript functions have only one return value.
+There we are maping over our `starData` (which was passed in by the parent `StarChart` as a `prop`), passing a function called `renderStars`. This function will return an SVG `circle` and a `text` element with the name of the system. As mentioned in a prior chapter, a list of sibling elements should have a unique key as an attribute, allowing React to greatly improve the performance of transforming a large list. Here, we are using the index of the star system within the array.
 
-
-The curly braces in our return value for our `render` function allows us to run JavaScript expressions in our JSX code. There we are accessing the star data which will be passed into this component as props, and then mapping over that data to return an SVG `circle` and a text element with the name of the system.
-
-In our `renderStars` function, we're setting up the attributes for our circle and text elements in an object. By doing it this way, we can use the [spread operator](https://facebook.github.io/react/docs/jsx-spread.html) to expand that object into arguments using the `...` syntax. The spread operator is supported by JSX and is supported for arrays in ES2015 and is proposed for objects is ES2016. The equivalent expression would look something like this:
-
+In addigin, our `renderStars` function is setting up the attributes for our circle and text elements in an object. By doing it this way, we can use the [spread operator](https://facebook.github.io/react/docs/jsx-spread.html) to expand that object into arguments using the `...` syntax. The spread operator is supported by JSX and is supported for arrays in ES2015. It is also proposed for objects in ES2016. The equivalent expression would look something like this:
 
 ```
 <text x={star.position[0] + 5} y={star.position[1] + 5} className={'star-name' + ' ' + this.jurisdictionToClassName(star)}/>
@@ -168,22 +165,26 @@ In our `renderStars` function, we're setting up the attributes for our circle an
 
 But with the spread operator, we can easily set up the arguments for our element elsewhere and pass it in with a much cleaner syntax.
 
-What's not clear from our code here is that we're dealing with two limitations of the React's diffing algorithm here. Firstly, we need to wrap our `circle` and `text` elements in a `g` element since React does not allow multiple return values for UI elements. Since JSX looks like HTML but is actually JavaScript, we need to wrap every JSX return value into one parent element, otherwise it won't work. Also, since we're returning multiple sibling star system elements, React needs a unique key for each sibling element to make insertions, substitutions, deletions, a O(n) operation with a hash map rather than a O(n^2) via other algorithms. The star systems already have a unique ID, so we're going to use that as our keys.
+At this point, you may have asked yourself why are we wrapping `starData` in a `g` element in our `render()` function. It seems unnecessary. In fact, it's very much necessary -- it will not work without it. Since React abstracts the DOM via JavaScript, we cannot return sibling elements without it wrapped in a parent element. This is a limitation of the language since JavaScript functions have only one return value. Therefore, anything returned in our `render()` function must resemble a tree with one parent node at the very top. Without this `g` element, our component will result in an error.
 
-Next, we need to actually call this component in our `App` component.
+
+Finally, we need to render the `StarChart` in the `Game` component, as well as the `starData`.
 
 ```
-# unfinished/app/components/App.jsx
-var App = React.createClass({
+# unfinished/app/components/Game.jsx
+var React = require('react');
+var starData = require('../data/starData');
+var StarChart = require('./StarChart.jsx');
+
+module.exports = React.createClass({
   render: function() {
-    var stars = Stars.getStarData();
-    return <StarChart starData={stars}/>
+    return <StarChart starData={starData} />
   }
 });
-
-module.exports = App;
 ```
 
-In `App`'s `render` function, we're going to get all the star data and then pass that into the `StarChart` as `props`. This is the ideal way of building a React component. You start with the child component you want to build and require data that you don't have yet, and then in the parent component figure out how to get that data to the child component. In that respect, it's similar to TDD (Test-Driven Development) in that you're starting with test for the code you wish you had, then you write the code itself.
+In `Game`'s `render()` function, we are going to get all the star data and then pass that into the `StarChart` as `props`. This is the ideal way of building a React component. You start with the child component you want to build and require data that you don't have yet, and then in the parent component figure out how to get that data to the child component. In that respect, it's similar to TDD (Test-Driven Development) in that you're starting with tests for the code you wish you had, then you write the code itself.
 
-Now if we take a look at our browser, we should see the following:
+Now if we take a look at our browser, we should the star chart:
+
+![star chart](../images/03_star_chart.png)
