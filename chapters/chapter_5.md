@@ -353,7 +353,9 @@ module.exports = React.createClass({
 
 ```
 
-This is a good place to talk about where to place business logic. A useful pattern in React is "smart and dumb components". At the core of this pattern is seperating components between those that hold state vs those are basically just idempotent functions. At the heart of this application is the `Ship` which contains all the state for the starship: where it is, where it's going, who are the crew members, and what is it's current speed. Child components should not know how to update this state -- only `Game` will know how to do that. `Game` will be the "smart" component while most child components will be "dumb". To update ship state, child components will call on functions that are originally passed down from 
+This is a good place to talk about where to place business logic. A useful pattern in React is "smart and dumb components". At the core of this pattern is seperating components between those that hold state vs those are basically just idempotent functions. At the heart of this application is the `Ship` which contains all the state for the starship: where it is, where it's going, who are the crew members, and what is it's current speed. Child components should not know how to update this state -- only `Game` will know how to do that. `Game` will be the "smart" component while most child components will be "dumb". To update ship state, child components will call on functions that are originally passed down from `Game`. 
+
+Therefore, we are creating a new method on `Game` called `updateShipInfo`.
 
 We're going to create a "helm" element with the `ShipInfo` component inside it. We could create a `Heml` component instead, but we're going to create quite a few components here. For learning purposes we're going to avoid nesting our components too far down, but if you wanted to add other components like a communication panel, you would certainly want to create a `Heml` component to encapsulate that functionality.
 
