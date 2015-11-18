@@ -91,8 +91,8 @@ Let's create our `StarChart` component under `unfinished/app/components/StarChar
 ```javascript
 # unfinished/app/components/StarChart.jsx
 
-var React    = require('react');
-var Stars    = require('./Stars.jsx');
+var React = require('react');
+var Stars = require('./Stars.jsx');
 
 module.exports = React.createClass({
   render: function() {
@@ -188,3 +188,124 @@ In `Game`'s `render()` function, we are going to get all the star data and then 
 Now if we take a look at our browser, we should the star chart:
 
 ![star chart](../images/03_star_chart.png)
+
+The different colors represent different factions in the Star Trek Universe. In case you are wondering:
+
+* Federation: Aqua
+* Romulan Empire: Red
+* Garidian Republic: Pink
+* Elorg Bloc: Purple
+* Cardassian Union: Teal
+* Tzenkethi Coalition: Orange
+* Klingon Empire: Violet
+* Independent: Grey
+
+
+Now that we have a star chart, we can create a ship and render it's position of the map. Let's create a constructor for a ship in `unfinished/app/data/Ship.js`. 
+
+```javascript
+# unfinished/app/data/Ship.js
+
+module.exports = function() {
+  this.info = {
+    shipName: null,
+    captain: null,
+    firstOfficer: null,
+    chiefEngineer: null,
+    tacticalOfficer: null,
+    helmsman: null
+  };
+
+  this.position = [500, 300];
+
+  this.destination = {
+    name: 'Sol',
+    position: [500, 300],
+    jurisdiction: 'Federation'
+  };
+
+  this.speed = 0;
+};
+```
+
+Now let's create this ship in `Game.jsx` and pass it down to our `StarChart`.
+
+
+```javascript
+# unfinished/app/components/Game.jsx
+
+var React = require('react');
+var starData = require('../data/starData');
+var StarChart = require('./StarChart.jsx');
+var Ship = require('../data/Ship.js');
+
+module.exports = React.createClass({
+
+  getInitialState: function() {
+    return { ship: new Ship() };
+  },
+
+  render: function() {
+    var ship = this.state.ship;
+    return <StarChart starData={starData} ship={ship}/>
+  }
+});
+```
+Again, `getInitialState` can be considered a constructor method for a React component much like a class in traditional OOP. Here we can set the intial state of the component on it's very first render. Remember, React components manage their own internal state. Ideally, you want to put as much data into `props` as possible, but data that needs to change or initialized somehow will probably be placed in `state`. To access the ship data, we call `this.state.ship`. We will pass that ship to `StarChart` as props. If we ever need to access the ship in `StarChart` or any other direct child component of `Game`, we can have access to it by passing into those components as `props`.
+
+```javascript
+# unfinished/app/components/StarChart.jsx
+
+var React = require('react');
+var Stars = require('./Stars.jsx');
+var StarshipRenderer = require('./StarshipRenderer.jsx');
+
+module.exports = React.createClass({
+  render: function() {
+    var props = this.props;
+    return (
+      <div className="star-chart">
+        <svg width="1000" height="600">
+          <Stars starData={props.starData}/>
+          <StarshipRenderer ship={props.ship}/>
+        </svg>
+      </div>
+    );
+  }
+});
+```
+
+The only addition to this component is the `Starship` component which will be in charge of figuring out how to render the starship. If we had multiple ships we could re-use this component to render those ships. `StarChart` has access to the ship as `props`, which will then also pass ship to `Starship` as `props`. We can access props via `this.props`.
+
+Remember, `props` are immutable. So in the `StarChart` component, there is no state to speak of. It is a stateless component. It's basically an idempotent function. Given certain data, it is guarenteed to always return the same value. Now let's create our `Starship` component. 
+
+The point of this tutorial is to show how React works under the hood and to give you as the developer a deep understanding of where things work and when they don't. React supports all HTML tags and most SVG tags. One SVG tag which we need but isn't supported is an SVG image tag.
+
+Under the hood, React uses `setInnerHTML` to update a DOM node. Normally, React abstracts this from the application developer. But in this case, we need to tell React how to render an SVG image. React gives you an ability to do that with `dangerouslySetInnerHTML`, aptly named to warn the developer that you can potentially open your application to a cross-site scripting attack. This is safe to use as long as you're not deriving the value of the `innerHTML` via unsanitized end-user input. All that is required is to create an image string and derive the coordinates based on the ship position. Check out this article to learn more: [Dangerously Set innerHTML](https://facebook.github.io/react/tips/dangerously-set-inner-html.html)
+
+We're abstracting exactly how we come up with this string because of the complicated trigonometry necessary, but you can take a look at how we're doing it if you are curious.
+
+As a side note, React loves to use strongly worded method names and variables to warn developers. Here's an funny one from the React source code: [SECRET_DOM_DO_NOT_USE_OR_YOU_WILL_BE_FIRED](https://github.com/facebook/react/blob/b2ca3349c27b57b1e9462944cbe4aaaf76783d2b/src/React.js#L67)
+
+```javascript
+# unfinished/app/components/Starship.jsx
+
+var Starship = React.createClass({
+
+  render: function() {
+    return (
+      // React does not support SVG Image elements. We need to do this ourselves
+      <g dangerouslySetInnerHTML={this.renderImage()}></g>
+    );
+  },
+
+  renderImage: function() {
+    var imageInText = starshipImage.renderImageElementAsString(this.props.ship);
+    return {__html: imageInText};
+  }
+});
+
+module.exports = Starship;
+```
+
+`dangerouslySetInnerHTML` requires an object with `__html` as the key and your DOM element string as the value. Now our ship is on the star chart.
