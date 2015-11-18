@@ -494,6 +494,8 @@ Now we should have our first component that actually updates state. If you navig
 
 ## Navigation
 
+We are doing pretty good at this point, however now we want to get started with laying the groundwork for space travel. 
+
 We are doing great so far but we still have more work before our starship goes where no one has gone before. 
 
 We have just created our first component that actually changes state in the application rather than just render data. 
