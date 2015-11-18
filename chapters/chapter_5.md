@@ -357,8 +357,6 @@ This is a good place to talk about where to place business logic. A useful patte
 
 Therefore, we are creating a new method on `Game` called `updateShipInfo()`. This method is passed to `HelmControl` as `props` so that it can update ship information. Within `updateShipInfo()` we are taking in new `info` as an argument and updating our `ship` state with the new info via `setState()`. This will notify React of a change in our data model and trigger a re-render of `Game` and all of it's children.
 
-We're going to create a "helm" element with the `ShipInfo` component inside it. We could create a `Heml` component instead, but we're going to create quite a few components here. For learning purposes we're going to avoid nesting our components too far down, but if you wanted to add other components like a communication panel, you would certainly want to create a `Heml` component to encapsulate that functionality.
-
 We're passing the ship to `ShipInfo`, but we're also passing in the `updateShip` method as well. Since data in React is unidirectional, changes to `this.state.ship` can only occur where that state lives, which in this case is `App`. Therefore, we need to pass a method to our child components if we want to update the state.
 
 If you're observant you may have noticed that when `updateShip` gets called in the child component, the value of `this` would have changed. React automatically binds methods in it's components to it's current value of `this`, avoiding needless repetition.
