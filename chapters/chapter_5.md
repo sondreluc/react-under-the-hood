@@ -496,7 +496,7 @@ Now we should have our first component that actually updates state. If you navig
 
 We are doing pretty good at this point, however now we want to get started with laying the groundwork for space travel. We want to be able to click on a star system and engage our warp engines. First, lets render a component that will display navigational data to the user. Let's open `HelmControl` and add a `NavigationDashboard` component.
 
-```
+```javascript
 # unfinished/app/components/HelmControl.jsx
 
 var React = require('react');
