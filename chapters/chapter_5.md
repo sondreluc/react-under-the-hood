@@ -10,7 +10,7 @@ We are going to get started building our Star Trek video game. Once we are finis
 
 ![finished demo](../images/01_finished_demo.png)
 
-By the end of the tutorial, the game should render a star chart with star systems colored by faction as well render the image of your starship at the current position of the starship. You should be able to chart a course by selecting a star system on the star chart, or you can search a star system under the "Course Control" panel under "Helm Control". You should be able to set the name of your ship and your crew by clicking on the name. Also, you should be able to select the warp factor for your starship and engage the warp engines, which will begin the movement of the starship to it's current destination. During travel, the "Navigation" panel will display your current destination, heading, and position.
+By the end of the tutorial, the game should render a star chart with star systems colored by faction as well render the image of a starship at the current position of the starship. You should be able to chart a course by selecting a star system on the star chart, or you can search a star system under the "Course Control" panel under "Helm Control". You should be able to set the name of your ship and your crew by clicking on the name. Also, you should be able to select the warp factor for your starship and engage the warp engines, which will begin the movement of the starship to it's current destination. During travel, the "Navigation" panel will display your current destination, heading, and position.
 
 ## Setup
 
@@ -161,7 +161,7 @@ There we are maping over our `starData` (which was passed in by the parent `Star
 
 In addigin, our `renderStars` function is setting up the attributes for our circle and text elements in an object. By doing it this way, we can use the [spread operator](https://facebook.github.io/react/docs/jsx-spread.html) to expand that object into arguments using the `...` syntax. The spread operator is supported by JSX and is supported for arrays in ES2015. It is also proposed for objects in ES2016. The equivalent expression would look something like this:
 
-```
+```javascript
 <text x={star.position[0] + 5} y={star.position[1] + 5} className={'star-name' + ' ' + this.jurisdictionToClassName(star)}/>
 ```
 
@@ -172,7 +172,7 @@ At this point, you may have asked yourself why are we wrapping `starData` in a `
 
 Finally, we need to render the `StarChart` in the `Game` component, as well as the `starData`.
 
-```
+```javascript
 # unfinished/app/components/Game.jsx
 var React = require('react');
 var starData = require('../data/starData');
@@ -492,7 +492,11 @@ Now we should have our first component that actually updates state. If you navig
 
 ![ship info](../images/05_ship_info.png)
 
-We've just created our first component that actually changes state in the application rather than just render data. 
+## Navigation
+
+We are doing great so far but we still have more work before our starship goes where no one has gone before. 
+
+We have just created our first component that actually changes state in the application rather than just render data. 
 
 Let's render another simple component that will display navigational data such as the current destination and heading.
 
