@@ -200,6 +200,7 @@ The different colors represent different factions in the Star Trek Universe. In 
 * Klingon Empire: Violet
 * Independent: Grey
 
+## Starship
 
 Now that we have a star chart, we can create a ship and render it's position of the map. Let's create a constructor for a ship in `unfinished/app/data/Ship.js`. 
 
@@ -275,22 +276,25 @@ module.exports = React.createClass({
 });
 ```
 
-The only addition to this component is the `Starship` component which will be in charge of figuring out how to render the starship. If we had multiple ships we could re-use this component to render those ships. `StarChart` has access to the ship as `props`, which will then also pass ship to `Starship` as `props`. We can access props via `this.props`.
+The only addition to this component is the `StarshipRenderer` component which will be in charge of figuring out how to render a starship. If we had multiple ships we could re-use this component to render those ships. `StarChart` has access to the ship as `props`, which will then also pass ship to `StarshipRenderer` as `props`. We can access props via `this.props`.
 
-Remember, `props` are immutable. So in the `StarChart` component, there is no state to speak of. It is a stateless component. It's basically an idempotent function. Given certain data, it is guarenteed to always return the same value. Now let's create our `Starship` component. 
+Remember, `props` should be treated as immutable. So in the `StarChart` component, there is no state to speak of. It is a stateless component. It is basically an idempotent function. Given certain data, it is guarenteed to always return the same value. Now let's create our `StarshipRenderer` component. 
 
-The point of this tutorial is to show how React works under the hood and to give you as the developer a deep understanding of where things work and when they don't. React supports all HTML tags and most SVG tags. One SVG tag which we need but isn't supported is an SVG image tag.
+The point of this tutorial is to show how React works under the hood and to give you as the developer a deep understanding of where things work and when they do not. React supports all HTML tags and most SVG tags. One SVG tag which we need but isn't supported is an SVG `image` tag. (Update: as of React 0.14, the SVG `image` element is now supported).
 
-Under the hood, React uses `setInnerHTML` to update a DOM node. Normally, React abstracts this from the application developer. But in this case, we need to tell React how to render an SVG image. React gives you an ability to do that with `dangerouslySetInnerHTML`, aptly named to warn the developer that you can potentially open your application to a cross-site scripting attack. This is safe to use as long as you're not deriving the value of the `innerHTML` via unsanitized end-user input. All that is required is to create an image string and derive the coordinates based on the ship position. Check out this article to learn more: [Dangerously Set innerHTML](https://facebook.github.io/react/tips/dangerously-set-inner-html.html)
+Under the hood, React uses `setInnerHTML` to update a DOM node. Normally, React abstracts this from the application developer. But in this case, we need to tell React how to render an SVG image. React gives you an ability to do that with `dangerouslySetInnerHTML`, aptly named to warn the developer that you can potentially open your application to a cross-site scripting attack. This is safe to use as long as you're not deriving the value of the `innerHTML` via unsanitized user input. Check out this article to learn more: [Dangerously Set innerHTML](https://facebook.github.io/react/tips/dangerously-set-inner-html.html)
 
-We're abstracting exactly how we come up with this string because of the complicated trigonometry necessary, but you can take a look at how we're doing it if you are curious.
+All that is required is to create an image string and derive the coordinates based on the ship position.  We are abstracting exactly how we come up with this string because of the complicated trigonometry necessary, but you can take a look at how we are doing it if you are curious.
 
-As a side note, React loves to use strongly worded method names and variables to warn developers. Here's an funny one from the React source code: [SECRET_DOM_DO_NOT_USE_OR_YOU_WILL_BE_FIRED](https://github.com/facebook/react/blob/b2ca3349c27b57b1e9462944cbe4aaaf76783d2b/src/React.js#L67)
+As a side note, React loves to use strongly worded method names and variables to warn developers. Here is an funny one from the React source code: [SECRET_DOM_DO_NOT_USE_OR_YOU_WILL_BE_FIRED](https://github.com/facebook/react/blob/b2ca3349c27b57b1e9462944cbe4aaaf76783d2b/src/React.js#L67)
 
 ```javascript
 # unfinished/app/components/Starship.jsx
 
-var Starship = React.createClass({
+var React         = require('react');
+var starshipImage = require('../utilities/starshipImage.js');
+
+module.exports = React.createClass({
 
   render: function() {
     return (
@@ -305,7 +309,150 @@ var Starship = React.createClass({
   }
 });
 
-module.exports = Starship;
 ```
 
-`dangerouslySetInnerHTML` requires an object with `__html` as the key and your DOM element string as the value. Now our ship is on the star chart.
+`dangerouslySetInnerHTML` requires an object with `__html` as the key and your DOM element string as the value. Now our cute little ship is on the star chart.
+
+![star chart with starship](../images/04_star_chart_with_starship.png)
+
+## Ship Info
+
+It's great that we are displaying an accurate representation of the Alpha Quadrant with a early version of the USS Enterprise. However, we want to update the name of our starship, along with the members of our crew. 
+
+You may have noticed that we added a `crew` object to `Ship.js`. Let's create a component where we can render the ship information, including the crew and ship name, which we can then edit in-line.
+
+```
+# unfinished/app/components/App.jsx
+
+var App = React.createClass({
+...
+
+  render: function() {
+    var ship  = this.state.ship;
+    var stars = Stars.getStarData();
+    return (
+      <div>
+        <StarChart
+          starData={stars}
+          ship={ship} />
+        <div className="helm">
+          <div id="helm-header">
+            <h1>Helm Control</h1>
+          </div>
+          <ShipInfo ship={ship} updateShip={this.updateShip} />
+        </div>
+      </div>
+    );
+  },
+
+  updateShip: function(ship) {
+   this.setState({ship: ship});
+  },
+});
+
+module.exports = App;
+```
+
+We're going to create a "helm" element with the `ShipInfo` component inside it. We could create a `Heml` component instead, but we're going to create quite a few components here. For learning purposes we're going to avoid nesting our components too far down, but if you wanted to add other components like a communication panel, you would certainly want to create a `Heml` component to encapsulate that functionality.
+
+We're passing the ship to `ShipInfo`, but we're also passing in the `updateShip` method as well. Since data in React is unidirectional, changes to `this.state.ship` can only occur where that state lives, which in this case is `App`. Therefore, we need to pass a method to our child components if we want to update the state.
+
+If you're observant you may have noticed that when `updateShip` gets called in the child component, the value of `this` would have changed. React automatically binds methods in it's components to it's current value of `this`, avoiding needless repetition.
+
+Inside `updateShip`, we are taking a new ship as an argument, which we will then update the current state of the ship to equal the one passed in as an argument. Updating the state via `setState` tells React that the state has changed, triggering a re-render. 
+
+As was mentioned before, all abstractions leak, and this is one place where the Virtual DOM leaks. We have to notify our system that our state has changed. If JavaScript were truly reactive, the value of our new state would be updated automatically. But like most things in life, there are few things that are always a complete win -- everything is a tradeoff. While we do have to explicitly tell React about state changes, we know that once that state changes are app will resemble a static system. Our whole app is essentially a state machine, with all our components automatically snapping into place when the state of the world has changed.
+
+Let's create a `ShipInfo` component which will be in charge of rendering the ship info and updating it.
+
+```
+# unfinished/app/components/ShipInfo.jsx
+
+var ShipInfo = React.createClass({
+  render: function() {
+    var ship = this.props.ship;
+    var info = ship.info;
+    return (
+      <div className="ship-info">
+        <h2>Ship Info</h2>
+        {this.renderElement('shipName', info.shipName, 'Ship Name')}
+        {this.renderElement('captain', info.captain, 'Captain Name')}
+        {this.renderElement('firstOfficer', info.firstOfficer, 'First Officer')}
+        {this.renderElement('chiefEngineer', info.chiefEngineer, 'Chief Engineer')}
+        {this.renderElement('tacticalOfficer', info.tacticalOfficer, 'Tactical Officer')}
+        {this.renderElement('helmsman', info.helmsman, 'Helmsman')}
+      </div>
+    );
+  },
+
+  renderElement: function(keyName, item, defaultValue) {
+    return (
+      <EditableElement
+          keyName={keyName}
+          item={item}
+          defaultValue={defaultValue}
+          onEdit={this.updateShipInfo}/>
+    );
+  },
+
+  updateShipInfo: function(key, newValue) {
+    var ship = this.props.ship;
+    ship.info[key] = newValue;
+    this.props.updateShip(ship);
+  }
+});
+
+module.exports = ShipInfo;
+```
+
+`ShipInfo`'s `render` function is returning a list of `EditableElement` components which will display a piece of data and edit that data when clicked. We're taking a rather naive approach to rendering the `EditableElement`s. If the names of the keys for the ship info changes we would have to change this component as well. This is fine for now.
+
+```
+# unfinished/app/components/EditableElement.jsx
+
+var EditableElement = React.createClass({
+  getInitialState: function() {
+    return { editing: false };
+  },
+
+  render: function() {
+    return this.state.editing ? this.renderEdit() : this.renderValue()
+  },
+
+  renderValue: function() {
+    var props = this.props;
+    return <p onClick={this.enterEditState}>{props.item || props.defaultValue}</p>
+  },
+
+  enterEditState: function() {
+    this.setState({ editing: true });
+  },
+
+  renderEdit: function() {
+    return (
+      <input type="text"
+        autoFocus="true"
+        defaultValue={this.props.item}
+        onBlur={this.finishEdit}
+        onKeyPress={this.checkEnter} />
+    );
+  },
+
+  checkEnter: function(e) {
+    if (e.key === 'Enter') {
+      this.finishEdit(e);
+    }
+  },
+
+  finishEdit: function(e) {
+    var keyName = this.props.keyName;
+    var newValue = e.target.value;
+    this.props.onEdit(keyName, newValue);
+    this.setState({editing: false});
+  }
+});
+
+module.exports = EditableElement;
+```
+
+This component has two states: editing and non-editing. When editing is true, it will render an input field which will watch for the "Enter" key and for clicking out of the input field, which will then trigger an update up the input value. When editing is false, it will just render the value of the ship info.
