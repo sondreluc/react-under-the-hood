@@ -357,11 +357,13 @@ This is a good place to talk about where to place business logic. A useful patte
 
 Therefore, we are creating a new method on `Game` called `updateShipInfo()`. This method is passed to `HelmControl` as `props` so that it can update ship information. Within `updateShipInfo()` we are taking in new `info` as an argument and updating our `ship` state with the new info via `setState()`. This will notify React of a change in our data model and trigger a re-render of `Game` and all of it's children.
 
-Let's create `HelmControl` in `unfinished/app/components/HelmControl`:
+Let's create `HelmControl` in `unfinished/app/components/HelmControl.jsx`:
 
 ```javascript
-var React      = require('react');
-var ShipInfo   = require('./ShipInfo.jsx');
+# unfinished/app/components/HelmControl.jsx
+
+var React = require('react');
+var ShipInfo = require('./ShipInfo.jsx');
 
 module.exports = React.createClass({
   render: function() {
@@ -381,7 +383,53 @@ module.exports = React.createClass({
 
 We are passing the ship to `ShipInfo`, but we are also passing in the `updateShip` method as well. Since data in React is unidirectional, changes to `this.state.ship` can only occur where that state lives, which in this case is `Game`. Therefore, we need to pass a method to our child components if we want to update the state.
 
+Let's create `ShipInfo` in `unfinished/app/components/ShipInfo.jsx`:
 
+```javascript
+# unfinished/app/components/ShipInfo.jsx
+
+var React = require('react');
+var EditableElement = require('./EditableElement.jsx');
+
+module.exports = React.createClass({
+  render: function() {
+    return (
+      <div className="ship-info">
+        <h2>Ship Info</h2>
+        {this.renderInputElements(this.props.info)}
+      </div>
+    );
+  },
+
+  renderInputElements: function(info) {
+    return Object.keys(info).map(function(key, index) {
+      return (
+        <EditableElement
+          value={this.getValue(key)}
+          key={key}
+          onEdit={this.updateInfo.bind(this, key)}/>
+      );
+    }.bind(this));
+  },
+
+  updateInfo: function(key, newValue) {
+    var info = this.props.info;
+    info[key] = newValue;
+    this.props.updateShipInfo(info);
+  },
+
+  getValue: function(key) {
+    return this.props.info[key] || this.keyToValue(key);
+  },
+
+  keyToValue: function(key) {
+    // insert a space before all caps and upper case the first character
+    return key.replace(/([A-Z])/g, ' $1')
+      .replace(/^./, function(str){ return str.toUpperCase(); })
+  }
+});
+
+```
 
 
 If you are really observant, you may have noticed that when `updateShip` gets called in the child component, the value of `this` would have changed. React automatically binds methods in it's components to it's current value of `this`, avoiding needless repetition.
