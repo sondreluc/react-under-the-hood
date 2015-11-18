@@ -1,10 +1,12 @@
 # Chapter 5: Star Trek Video Game Demo
 
-This isn't a book about project organization. There are some conventions that are starting to materialize. You can learn more here: Khan Academy link
+So far we have reviewed React from a very high level. This was intentional since there are plenty of vocational tutorials on React available. However, no book on a JavaScript library is complete without a demo application explaining how to actually use the library.
 
-By now, we'be already gone through most of the important parts of React's API. It's API foot print is actually quite narrow compared to some other frameworks but as the Roman prover says: "The fox has many tricks. The hedgehog has one good one."
+Therefore, we are going to build an application that touches the most crucial parts of React's API. In order to keep it fun, we are going to build a simple Star Trek themed space travel video game. This also reinforces the idea that React's design decisions are inherited from certain game engines. It will consist of a starship on a starchart of a scaled down version of the Star Trek's Alpha Quadrant. There is plenty of state to manage here: ship location, current destination, warp factor (speed), and whether the ship is currently travelling. All this state will respond to user input.
 
-We're going to get started building out Star Trek video game. Once we're finished, it will look something like this:
+By now, we have already gone through most of the important parts of React's API. It's API foot print is actually quite narrow compared to some other frameworks but as the Roman proverb says: "The fox has many tricks. The hedgehog has one good one."
+
+We are going to get started building our Star Trek video game. Once we are finished, it will look something like this:
 
 ![finished demo](../images/01_finished_demo.png)
 
