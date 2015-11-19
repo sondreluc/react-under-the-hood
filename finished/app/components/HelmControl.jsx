@@ -1,10 +1,13 @@
-var React      = require('react');
-var ShipInfo   = require('./ShipInfo.jsx');
-var Navigation = require('./Navigation.jsx');
+var React = require('react');
+var ShipInfo = require('./ShipInfo.jsx');
+var NavigationDashboard = require('./NavigationDashboard.jsx');
+var WarpDriveControls = require('./WarpDriveControls.jsx');
+var CourseControl = require('./CourseControl.jsx');
 
 module.exports = React.createClass({
   render: function() {
-    var ship = this.props.ship;
+    var props = this.props;
+    var ship = props.ship;
     var starData = this.props.starData;
     return (
       <div className="helm">
@@ -13,13 +16,15 @@ module.exports = React.createClass({
         </div>
         <ShipInfo
           info={ship.info}
-          updateShipInfo={this.props.updateShipInfo} />
-        <Navigation
-          ship={ship}
-          starData={starData}
-          updateSpeed={this.props.updateSpeed}
-          engageWarpDrive={this.props.engageWarpDrive}
-          updateDestination={this.props.updateDestination}/>
+          updateShipInfo={props.updateShipInfo} />
+        <NavigationDashboard ship={ship}/>
+        <CourseControl
+          starData={props.starData}
+          updateDestination={props.updateDestination}/>
+        <WarpDriveControls
+          speed={ship.speed}
+          updateSpeed={props.updateSpeed}
+          engageWarpDrive={props.engageWarpDrive}/>
       </div>
     );
   }

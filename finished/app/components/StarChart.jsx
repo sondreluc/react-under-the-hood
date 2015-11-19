@@ -1,6 +1,6 @@
 var React    = require('react');
 var Stars    = require('./Stars.jsx');
-var Starship = require('./Starship.jsx');
+var StarshipRenderer = require('./StarshipRenderer.jsx');
 
 module.exports = React.createClass({
   render: function() {
@@ -10,7 +10,7 @@ module.exports = React.createClass({
         <svg width="1000" height="600">
           <Stars starData={props.starData}
             updateDestination={this.props.updateDestination}/>
-          <Starship ship={props.ship}/>
+          <StarshipRenderer ship={props.ship}/>
         </svg>
       </div>
     );

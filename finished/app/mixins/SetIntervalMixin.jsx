@@ -3,15 +3,16 @@ module.exports = {
     this.intervals = [];
   },
 
-  setInterval: function() {
-    this.intervals.push(setInterval.apply(null, arguments));
-  },
-
   componentWillUnmount: function() {
     this.clearIntervals();
   },
 
+  setInterval: function() {
+    this.intervals.push(setInterval.apply(null, arguments));
+  },
+
   clearIntervals: function() {
     this.intervals.forEach(clearInterval);
+    this.intervals = [];
   }
 };

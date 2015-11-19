@@ -1,6 +1,6 @@
-var React             = require('react');
-var nav               = require('../utilities/starshipNavigation.js');
-var EditableElement   = require('./EditableElement.jsx');
+var React = require('react');
+var nav = require('../utilities/starshipNavigation.js');
+var EditableElement = require('./EditableElement.jsx');
 
 module.exports = React.createClass({
   render: function() {
@@ -8,9 +8,7 @@ module.exports = React.createClass({
       <div className="navigational-controls">
         <h2>Warp Drive</h2>
         <span>WARP:</span>
-        <EditableElement
-          value={this.props.speed}
-          onEdit={this.updateSpeed}/>
+        <EditableElement value={this.props.speed} onEdit={this.updateSpeed}/>
         <div className="arrow-controls">
           <button onClick={this.incrementSpeed.bind(this, 1)}>&#11014;</button>
           <button onClick={this.incrementSpeed.bind(this, -1)}>&#11015;</button>

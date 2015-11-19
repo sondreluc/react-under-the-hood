@@ -32,15 +32,15 @@ module.exports = React.createClass({
     );
   },
 
-  updateDestination: function(newDestination) {
-    var ship = this.state.ship;
-    ship.destination = newDestination;
-    this.setState({ship: ship});
-  },
-
   updateShipInfo: function(info) {
     var ship = this.state.ship;
     ship.info = info;
+    this.setState({ship: ship});
+  },
+
+  updateDestination: function(newDestination) {
+    var ship = this.state.ship;
+    ship.destination = newDestination;
     this.setState({ship: ship});
   },
 
@@ -51,6 +51,7 @@ module.exports = React.createClass({
   },
 
   engageWarpDrive: function() {
+    this.clearIntervals();
     this.setInterval(this.updateShipPosition, 30);
   },
 

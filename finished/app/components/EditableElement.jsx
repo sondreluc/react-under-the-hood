@@ -6,7 +6,7 @@ module.exports = React.createClass({
   },
 
   render: function() {
-    var isEditing = this.state.editing
+    var isEditing = this.state.editing;
     return isEditing ? this.renderInputField() : this.renderParagraph()
   },
 
