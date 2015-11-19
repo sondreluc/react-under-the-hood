@@ -549,118 +549,162 @@ module.exports = React.createClass({
     );
   }
 });
-
 ```
 
-This component is completely stateless which is what we want. Whenever our ship data changes, we will recalculate the the heading using some utility functions under `nav`. The complicated math needed to make this work is abstracted for you, but you can take a look at the source code if you wish under `/utilities`.
+Notice that `NavigationDashboard` is completely stateless. Whatever data ou feed it will always return the same outcome. We want as many of our components to resemble this pattern as much as possible. 
 
-Now that we can see our Navigation Dashboard, let's add a way to update our destination. We want to be able to click a star system and automatically update our destination.
+Whenever our ship data changes, we will recalculate the the heading using some utility functions under `nav`. There is quite a bit of trigonometry that does into making these kinds of games. this book is not about high school math, so the complicated math needed to make this work is abstracted for you. We will use `nav` to calculate the heading of the ship rather than caching it in the ship data, thereby reducing the likelihood of bugs. These kinds of calculations are fairly cheap in JavaScript.
 
-```
-# unfinished/app/components/App.jsx
+If we navigate to `localhost:4000` we should see this:
 
-var App = React.createClass({
+![navigation info](../images/06_navigation_info.png)
 
-  ...
+## Charting A New Course
+
+Now that we have a way to see our navigation data, we can start working on updating the destination of our starship. We want to be able to click on a star system and automatically update the destination.
+
+Let's create a function for updating our destination in `Game` which we will pass to our `StarChart`:
+
+```javascript
+# unfinished/app/components/Game.jsx
+
+var React = require('react');
+var starData = require('../data/starData');
+var StarChart = require('./StarChart.jsx');
+var Ship = require('../data/Ship.js');
+var HelmControl = require('./HelmControl.jsx');
+
+module.exports = React.createClass({
+
+  getInitialState: function() {
+    return { ship: new Ship() };
+  },
 
   render: function() {
-    var ship  = this.state.ship;
-    var stars = Stars.getStarData();
+    var ship = this.state.ship;
     return (
       <div>
         <StarChart
-          starData={stars}
+          starData={starData}
           ship={ship}
           updateDestination={this.updateDestination}/>
-        <div className="helm">
-          <div id="helm-header">
-            <h1>Helm Control</h1>
-          </div>
-          <ShipInfo ship={ship} updateShip={this.updateShip} />
-          <Navigation
-            ship={ship}/>
-        </div>
+        <HelmControl ship={ship} updateShipInfo={this.updateShipInfo} />
       </div>
     );
   },
 
-  ...
-
-  updateDestination: function(destination) {
+  updateShipInfo: function(info) {
     var ship = this.state.ship;
-    ship.destination = destination;
+    ship.info = info;
+    this.setState({ship: ship});
+  },
+
+  updateDestination: function(newDestination) {
+    var ship = this.state.ship;
+    ship.destination = newDestination;
     this.setState({ship: ship});
   },
 });
-
-module.exports = App;
 ```
 
-`StarChart` now receives `updateDestination` which it will attach to each star system. Remember, React implements a synthetic event system meaning that even though we have over 100 star systems, we're not taking a performance hit by attaching event listeners to each system. All these event listeners only exist in memory.
+`StarChart` now receives `updateDestination()` which it will eventuall be attached to each star system. Remember, React implements a synthetic event system meaning that even though we have over 100 star systems, we are not taking a performance hit by attaching event listeners to each system. All these event listeners only exist in memory.
 
-```
+Let's open up `StarChart` and pass `updateDestination()` to `Stars`:
+
+```javascript
 # unfinished/app/components/StarChart.jsx
 
-var StarChart = React.createClass({
+var React = require('react');
+var Stars = require('./Stars.jsx');
+var StarshipRenderer = require('./StarshipRenderer.jsx');
 
-  ...
+module.exports = React.createClass({
+  render: function() {
+    var props = this.props;
+    return (
+      <div className="star-chart">
+        <svg width="1000" height="600">
+          <Stars starData={props.starData}
+            updateDestination={this.props.updateDestination}/>
+          <StarshipRenderer ship={props.ship}/>
+        </svg>
+      </div>
+    );
+  }
+});
+
+```
+
+Finally, let's use `updateDestination()` as an `onClick` event handler in `Stars.jsx`:
+
+```javascript
+# unfinished/app/components/Stars.jsx
+var React = require('react');
+
+module.exports = React.createClass({
   
-  renderStars: function(star) {
+  ...
+
+  renderStars: function(star, index) {
   
     ...
     
     return (
-      <g key={star.id}>
+      <g key={index}>
         <text {...textAttr} onClick={this.props.updateDestination.bind(null, star)}>
           {star.name}
         </text>
         <circle {...circleAttr}></circle>
       </g>
     );
-  },
-  
-  ...
-  
+  }
 });
 
-module.exports = StarChart;
 ```
 
-Now when you click a star system, your starship will face the direction of the star system and the Navigation Dashboard will reflect your new destination and heading. Now let's add some controls so we can actually move our ship in space.
+Now when you click the name of a star system, your starship will face the direction of the star system and `NavigationDashboard` will reflect your new destination and heading. Also, `ShipRenderer` will rotate the starship image based on the new heading on the starship.
 
-```
-# unfinished/app/components/App.jsx
+## Warp Drive Controls
 
-var App = React.createClass({
+Now that we can update the destination of our starship, we can begin working on controls for our warp drive. There are a few things to consider here. Before we create a `WarpDriveControls` component that is responsible for rendering the UI for the warp drive controls, we need to create the business logic necessary to move our starship. When the warp drive is engaged, we are going to use a basic interval that will update the starship's position based on it's destination and current speed every 30 milliseconds.
 
+We are going to use a React `mixin` to help manage our intervals. Mixins are similar to Ruby modules or Sass mixins in that they're a form of inheritance / code reuse. You can create a mixin with functions that you can then include or "mixin" to other React components. It is useful for behavior that has cross-cutting concerns, such as setting and clearing intervals. However, they are a little controversial since this type of inheritance is not really a JavaScript concept. Also, they have certainly been abused in other languages/frameworks such as Ruby on Rails where it is not clear how multiple modules/mixins are interacting with eacht other. That said, if used sparigly and deliberatly they can be a powerful tool for code reuse.
+
+Let's add the necessary business logic to `Game`:
+
+```javascript
+# unfinished/app/components/Game.jsx
+
+...
+
+var nav = require('../utilities/starshipNavigation.js');
+var SetIntervalMixin = require('../mixins/SetIntervalMixin.jsx');
+
+module.exports = React.createClass({
   mixins: [SetIntervalMixin],
-  
-  ...
+
+  getInitialState: function() {
+    return { ship: new Ship() };
+  },
 
   render: function() {
-    var ship  = this.state.ship;
-    var stars = Stars.getStarData();
+    var ship = this.state.ship;
     return (
       <div>
         <StarChart
-          starData={stars}
+          starData={starData}
           ship={ship}
           updateDestination={this.updateDestination}/>
-        <div className="helm">
-          <div id="helm-header">
-            <h1>Helm Control</h1>
-          </div>
-          <ShipInfo ship={ship} updateShip={this.updateShip} />
-          <Navigation
-            ship={ship}
-            updateSpeed={this.updateSpeed}
-            engageWarpDrive={this.engageWarpDrive}
-            updateDestination={this.updateDestination}/>
-        </div>
+        <HelmControl
+          ship={ship}
+          updateDestination={this.updateDestination}
+          updateShipInfo={this.updateShipInfo}
+          updateSpeed={this.updateSpeed}
+          engageWarpDrive={this.engageWarpDrive}/>
       </div>
     );
   },
-  
+
   ...
 
   updateSpeed: function(newSpeed) {
@@ -670,67 +714,100 @@ var App = React.createClass({
   },
 
   engageWarpDrive: function() {
-    this.setInterval(this.updateShipPosition, 10);
+    this.clearIntervals();
+    this.setInterval(this.updateShipPosition, 30);
   },
 
   updateShipPosition: function() {
     var ship = this.state.ship;
-    var nextPos = nav.nextPositionToDestination(ship);
     if (nav.destinationReached(ship)) {
       this.clearIntervals();
     } else {
-      ship.position = nextPos;
+      ship.position = nav.nextPositionToDestination(ship);
       this.setState({ship: ship});
     }
-  
+  }
 });
-
-module.exports = App;
 ```
 
-We need to pass some methods to `Navigation` so we can update the state of the ship. We need to be able to update it's destination, speed, and whether or not to engage the warp drive.
+We created 3 basic functions for updating warp speed, engaging the warp drive (initiating movement), and updating ship position using our `nav` utility functions. We need to pass `updateSpeed()` and `engageWarpDrive` to `HelmControl` which will make it's way down to `WarpDriveControls`.
 
-When the warp drive is engaged, we need to start moving our ship on the star chart. The way we're going to move our ship is by setting an interval which will run a `nav.nextPositionToDestination` callback. Every 10 milliseconds we will calculate the next position based on the direction and speed of the starship. Then, we're going to update the starship position to the updated position, which will trigger a re-render. Again, most of this math is extracted for you.
+`clearIntervals()` and `setIntervals()` are defined in `SetIntervalMixin`. Let's go ahead create this new mixin under `unfinished/app/mixins/SetIntervalMixin.jsx`
 
-One thing that we are introducing here is a "mixin". If you're familiar with Ruby, they're like Ruby modules. React introduces a form of inheritance through mixins where you can share behavior between components. We could put all the methods for updating a ship's state via a mixin if we wish. Here, we're only using it for setting and clearing intervals. Intervals can lead to a memory leak if we forget to clear them, so we're going to use a mixin to put all our intervals in an array and then clear all those intervals when we're done. The mixin is already written for you but you can take a quick look under `/mixin`.
+```javascript
+# unfinished/app/mixins/SetIntervalMixin.jsx
 
-Let's go ahead and add a `WarpDriveControls` component to our `Navigation` component.
+module.exports = {
+  componentWillMount: function() {
+    this.intervals = [];
+  },
 
+  componentWillUnmount: function() {
+    this.clearIntervals();
+  },
+  
+  setInterval: function() {
+    this.intervals.push(setInterval.apply(null, arguments));
+  },
+
+  clearIntervals: function() {
+    this.intervals.forEach(clearInterval);
+    this.intervals = [];
+  }
+};
 ```
-# unfinished/app/components/Navigation.jsx
 
-var Navigation = React.createClass({
+`componentWillMount()` and `componentWillUnmount()` are special lifecycle methods that are part of the React component API. They allow you to hook in to different moments of the life of a React component for special tasks, such as making an AJAX request or skipping a re-render of the component. `componentWillMount()` is invoked only once, immediately before the initial render occurs. We are using this method to create an empty array for storing intervals. `componentWillUnmount()` is invoked right before a component is unmounted from the DOM. We are using this method to make sure any intervals we have are cleared before we unmount our component. This is useful for cases where the user navigated to a different part of our app, making sure any leftover intervals are cleared before the component is removed.
+
+You can learn more about lifecycle methods directly from the documentation: [lifecycle methods](https://facebook.github.io/react/docs/component-specs.html).
+
+Now let's go ahead and add a `WarpDriveControls` component to our `HelmControl` component.
+
+```javascript
+# unfinished/app/components/HelmControl.jsx
+
+var React = require('react');
+var ShipInfo = require('./ShipInfo.jsx');
+var NavigationDashboard = require('./NavigationDashboard.jsx');
+var WarpDriveControls = require('./WarpDriveControls.jsx');
+
+module.exports = React.createClass({
   render: function() {
-    var ship = this.props.ship
+    var props = this.props;
+    var ship = props.ship;
     return (
-      <div className="navigation">
+      <div className="helm">
+        <div id="helm-header">
+          <h1>Helm Control</h1>
+        </div>
+        <ShipInfo info={ship.info} updateShipInfo={props.updateShipInfo} />
         <NavigationDashboard ship={ship}/>
         <WarpDriveControls
-          ship={ship}
-          updateSpeed={this.props.updateSpeed}
-          engageWarpDrive={this.props.engageWarpDrive}/>
+          speed={ship.speed}
+          updateSpeed={props.updateSpeed}
+          engageWarpDrive={props.engageWarpDrive}/>
       </div>
     );
   }
 });
-
-module.exports = Navigation;
 ```
 
-```
+Our new `WarpDriveControls` will need the starship's speed along with event handlers for updating warp speed and engaging the warp drives. Let's create this component under `unfinished/app/components/WarpDriveControls.jsx`.
+
+```javascript
 # unfinished/app/components/WarpDriveControls.jsx
 
-var WarpDriveControls = React.createClass({
+var React = require('react');
+var nav = require('../utilities/starshipNavigation.js');
+var EditableElement = require('./EditableElement.jsx');
+
+module.exports = React.createClass({
   render: function() {
     return (
       <div className="navigational-controls">
         <h2>Warp Drive</h2>
         <span>WARP:</span>
-        <EditableElement
-          keyName="name"
-          item={this.props.ship.speed}
-          defaultValue="Full Stop"
-          onEdit={this.updateSpeed}/>
+        <EditableElement value={this.props.speed} onEdit={this.updateSpeed}/>
         <div className="arrow-controls">
           <button onClick={this.incrementSpeed.bind(this, 1)}>&#11014;</button>
           <button onClick={this.incrementSpeed.bind(this, -1)}>&#11015;</button>
@@ -742,94 +819,115 @@ var WarpDriveControls = React.createClass({
     );
   },
 
-  updateSpeed: function(keyName, newValue) {
-    var newSpeed = parseInt(newValue, 10);
-    this.props.updateSpeed(newSpeed);
+  updateSpeed: function(newSpeed) {
+    var newSpeed = parseFloat(newSpeed, 10);
+    if (0 <= newSpeed && newSpeed < 10) {
+      this.props.updateSpeed(newSpeed);
+    }
   },
 
   incrementSpeed: function(dSpeed) {
-    var currentSpeed = this.props.ship.speed;
+    var currentSpeed = this.props.speed;
     var newSpeed = Math.floor(currentSpeed + dSpeed);
     if (0 <= newSpeed && newSpeed < 10) {
       this.props.updateSpeed(newSpeed);
     }
   }
 });
-
-module.exports = WarpDriveControls;
 ```
 
-Notice that we're reusing EditableElement here. This is the beauty of React. Components are truly reusable. Now you can chart a new course by clicking a star system, choose the warp speed of your starship, and engage the warp drive engines.
+`WarpDriveControls` component reuses `EditableElement` from earlier in the tutorial. This is the beauty of React -- the ability to easily reuse components. This time, we do not have to set a `key` attribute on `EditableElement` since it is not part of a list. Our `updateSpeed()` and `incrementSpeed()` methods will update the speed as long as the warp factor is more that 0 and less than 10. Of course we all know you cannot travel faster than warp factor 10 ...
 
-Let's add another component for charting a course by typing into a field rather than clicking on the starchart. That could be useful if you know the name of the starsystem but don't remember where it is exactly.
+Now we can chart a new course by clicking a star system, choose the warp speed of our starship, and engage the warp drive engines, which moves our starship across the star chart. You should see this in your browser:
 
-More importantly, this gives us an opportunity to demonstrate how React interacts with third-party libraries.
+![warp drive component](../images/07_warp_drive.png)
 
-```
-# unfinished/app/components/App.jsx
+## Searching A Star System
 
-var App = React.createClass({
+Now we want to add the ability to chart a course to a star system by searching it's name. Let's add another component for charting a course by typing into a field rather than clicking on the starchart. That could be useful if you know the name of the starsystem but don't remember where it is exactly.
+
+More importantly, this gives us an opportunity to demonstrate how React interacts with third-party libraries since we are going to use jQuery Autocomplete for searching. There are better React-friendly libraries for autocomplete, but we want to explore how to incorporate a third-party library into React.
+
+Let's start by passing star data to our `HelmControl` component in `Game`:
+
+```javascript
+# unfinished/app/components/Game.jsx
+
+module.exports = React.createClass({
 
   ...
 
   render: function() {
     var ship  = this.state.ship;
-    var stars = Stars.getStarData();
     return (
+    
       ...
-        <Navigation
+      
+        <HelmControl
+          starData={starData}
           ship={ship}
-          stars={stars}
+          updateDestination={this.updateDestination}
+          updateShipInfo={this.updateShipInfo}
           updateSpeed={this.updateSpeed}
-          engageWarpDrive={this.engageWarpDrive}
-          updateDestination={this.updateDestination}/>
+          engageWarpDrive={this.engageWarpDrive}/>
+          
       ...
+      
     );
   },
 
   ...
   
 });
-
-module.exports = App;
 ```
 
-The only change in `App` is passing star data to the Navigation component.
+Now `HelmControl` has access to `starData`. We are going to use that for a `CourseControl` component. Let's add that component to `HelmControl`.
 
 ```
-# unfinished/app/components/Navigation.jsx
+# unfinished/app/components/HelmControl.jsx
 
+...
 
-var Navigation = React.createClass({
+var CourseControl = require('./CourseControl.jsx');
+
+module.exports = React.createClass({
   render: function() {
-    var ship = this.props.ship
+    var props = this.props;
+    var ship = props.ship;
     return (
-      <div className="navigation">
+      <div className="helm">
+        <div id="helm-header">
+          <h1>Helm Control</h1>
+        </div>
+        <ShipInfo info={ship.info} updateShipInfo={props.updateShipInfo} />
         <NavigationDashboard ship={ship}/>
         <CourseControl
-          stars={this.props.stars}
-          ship={ship}
-          updateDestination={this.props.updateDestination}/>
+          starData={props.starData}
+          updateDestination={props.updateDestination}/>
         <WarpDriveControls
-          ship={ship}
-          updateSpeed={this.props.updateSpeed}
-          engageWarpDrive={this.props.engageWarpDrive}/>
+          speed={ship.speed}
+          updateSpeed={props.updateSpeed}
+          engageWarpDrive={props.engageWarpDrive}/>
       </div>
     );
   }
 });
-
-module.exports = Navigation;
 ```
 
-We've added a `CourseControl` component and pass in star data, ship data, and an `updateDestination` method as props.
+We've added a `CourseControl` component and pass in `starData`, as well as `updateDestination()` which we will use an event handler when a star system is selected.
 
-For the `CourseControl` component, we're going to use jQuery Autocomplete to render a search box for searching and setting a new destination. There are libraries for text searching better suited for React, but we wanted to use a library not specifically designed for React. We're going to give jQuery Autocomplete access to the DOM via `ReactDOM.findDOMNode` along with a `ref` to DOM node we're looking for. We need to set this `ref` attribute explicitly in the DOM node we want to look for later.
+As mentioned earlier,  we are going to use jQuery Autocomplete to render a search box for searching and setting a new destination. There are libraries for text searching better suited for React, but we wanted to use a library not specifically designed for React. We are going to give jQuery Autocomplete access to the DOM via `ReactDOM.findDOMNode` along with a `ref` to DOM node we are looking for. We need to set this `ref` attribute explicitly in the DOM node we want to look for later. Then, we can access every `ref` element via `this.refs`.
+
+Let's create CourseControl in `unfinished/app/components/CourseControl.jsx`:
 
 ```
 # unfinished/app/components/CourseControl.jsx
 
-var CourseControl = React.createClass({
+require('jquery-ui/autocomplete');
+var React    = require('react');
+var ReactDOM = require('react-dom');
+
+module.exports = React.createClass({
   render: function() {
     return (
     <div className="course-control">
@@ -851,14 +949,14 @@ var CourseControl = React.createClass({
   },
 
   autocomplete: function() {
-    var stars = this.props.stars
-    var starNames = utils.getStarNames(stars);
+    var starData = this.props.starData;
+    var starNames = starData.map(function(star) { return star.name });
     $(ReactDOM.findDOMNode(this.refs.search)).autocomplete({
       source: starNames,
       minLength: 3,
       select: function(event, ui) {
         var starName  = ui.item.value;
-        var system    = utils.findSystem(stars, starName);
+        var system    = this.findSystem(starData, starName);
         this.props.updateDestination(system);
       }.bind(this),
       messages: {
@@ -866,12 +964,24 @@ var CourseControl = React.createClass({
         results: function() {}
       }
     });
+  },
+
+  findSystem: function(starData, starName) {
+    return starData.filter(function(star) { return star.name === starName })[0];
   }
 });
-
-module.exports = CourseControl;
 ```
 
-## Conclusion
+Take note we added a `ref` attribute to our input field with the value "search". Later, if you want to access this DOM node you can do so via `this.refs.search`. We can use any value for `ref` we like. Whatever the value of 'ref' is will become the key to access this DOM node in `this.refs`. 
+
+`componentDidMount()` and `componentDidUpdate` are other special React lifecycle methods. As the name implies, `componentDidMount()` will be invoked only once immediately after the component is mounted to the DOM. `componentDidUpdate()` is invoked after the component's updates are flushed to the DOM. This method is not called for the initial render. We will use `componentDidMount()` pass our input field to jQuery Autocomplete and will use `componentDidUpdate()` to reattach to the input field to jQuery Autocomplete in case the component is updated. Inside `autocomplete()` we use `ReactDOM.findDomNode()` to find our input field and then pass it to jQuery autocomplete.
+
+At this point you should see the entire game in the browser: 
+
+![finished demo](../images/01_finished_demo.png)
+
+## Summary 
 
 You've just built your first React game! Of course, there is still a lot of functionality to go. This could probably be rendered in canvas rather than SVG and HTML, and we could add opposing forces and a better way to distinguish territory boundaries. Still, this demo properly demonstrates React's gaming roots, and how you can create applications with non-trivial functionality with as little state as possible.
+
+The following chapter will go through a few more advanced topics while improving our game.
