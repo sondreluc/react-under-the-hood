@@ -280,18 +280,10 @@ module.exports = React.createClass({
 
 The only addition to this component is the `StarshipRenderer` component which will be in charge of figuring out how to render a starship. If we had multiple ships we could re-use this component to render those ships. `StarChart` has access to the ship as `props`, which will then also pass ship to `StarshipRenderer` as `props`. We can access props via `this.props`.
 
-Remember, `props` should be treated as immutable. So in the `StarChart` component, there is no state to speak of. It is a stateless component. It is basically an idempotent function. Given certain data, it is guarenteed to always return the same value. Now let's create our `StarshipRenderer` component. 
-
-The point of this tutorial is to show how React works under the hood and to give you as the developer a deep understanding of where things work and when they do not. React supports all HTML tags and most SVG tags. One SVG tag which we need but isn't supported is an SVG `image` tag. (Update: as of React 0.14, the SVG `image` element is now supported).
-
-Under the hood, React uses `setInnerHTML` to update a DOM node. Normally, React abstracts this from the application developer. But in this case, we need to tell React how to render an SVG image. React gives you an ability to do that with `dangerouslySetInnerHTML`, aptly named to warn the developer that you can potentially open your application to a cross-site scripting attack. This is safe to use as long as you're not deriving the value of the `innerHTML` via unsanitized user input. Check out this article to learn more: [Dangerously Set innerHTML](https://facebook.github.io/react/tips/dangerously-set-inner-html.html)
-
-All that is required is to create an image string and derive the coordinates based on the ship position.  We are abstracting exactly how we come up with this string because of the complicated trigonometry necessary, but you can take a look at how we are doing it if you are curious.
-
-As a side note, React loves to use strongly worded method names and variables to warn developers. Here is an funny one from the React source code: [SECRET_DOM_DO_NOT_USE_OR_YOU_WILL_BE_FIRED](https://github.com/facebook/react/blob/b2ca3349c27b57b1e9462944cbe4aaaf76783d2b/src/React.js#L67)
+Remember, `props` should be treated as immutable. In the `StarChart` component, there is no state to speak of. It is a stateless component. It is basically an idempotent function. Given certain data, it is guarenteed to always return the same value. Now let's create our `StarshipRenderer` component in `unfinished/app/components/StarshipRenderer.jsx`:
 
 ```javascript
-# unfinished/app/components/Starship.jsx
+# unfinished/app/components/StarshipRenderer.jsx
 
 var React         = require('react');
 var starshipImage = require('../utilities/starshipImage.js');
@@ -310,10 +302,17 @@ module.exports = React.createClass({
     return {__html: imageInText};
   }
 });
-
 ```
 
-`dangerouslySetInnerHTML` requires an object with `__html` as the key and your DOM element string as the value. Now our cute little ship is on the star chart.
+The point of this tutorial is to show how React works under the hood and to give you as the developer a deep understanding of where things work and when they do not. React supports all HTML tags and most SVG tags. One SVG tag which we need but isn't supported is an SVG `image` tag. (Update: as of React 0.14, the SVG `image` element is now supported).
+
+Under the hood, React uses `setInnerHTML` to update a DOM node. Normally, React abstracts this from the application developer. But in this case, we need to tell React how to render an SVG image. React gives you an ability to do that with `dangerouslySetInnerHTML`, aptly named to warn the developer that you can potentially open your application to a cross-site scripting attack. This is safe to use as long as you're not deriving the value of the `innerHTML` via unsanitized user input. `dangerouslySetInnerHTML` requires an object with `__html` as the key and your DOM element string as the value. Check out this article to learn more: [Dangerously Set innerHTML](https://facebook.github.io/react/tips/dangerously-set-inner-html.html)
+
+All that is required is to create an image string and derive the coordinates based on the ship position.  We are abstracting exactly how we come up with this string because of the complicated trigonometry necessary, but you can take a look at how we are doing it if you are curious.
+
+As a side note, React loves to use strongly worded method names and variables to warn developers. Here is an funny one from the React source code: [SECRET_DOM_DO_NOT_USE_OR_YOU_WILL_BE_FIRED](https://github.com/facebook/react/blob/b2ca3349c27b57b1e9462944cbe4aaaf76783d2b/src/React.js#L67)
+
+Now our cute little ship is on the star chart:
 
 ![star chart with starship](../images/04_star_chart_with_starship.png)
 
@@ -352,7 +351,6 @@ module.exports = React.createClass({
     this.setState({ship: ship});
   },
 });
-
 ```
 
 This is a good place to talk about where to place business logic. A useful pattern in React is "smart and dumb components". At the core of this pattern is seperating components between those that hold state vs those are basically just idempotent functions. At the heart of this application is the `Ship` which contains all the state for the starship: where it is, where it's going, who are the crew members, and what is it's current speed. Child components should not know how to update this state -- only `Game` will know how to do that. `Game` will be the "smart" component while most child components will be "dumb". To update ship state, child components will call on functions that are originally passed down from `Game`. 
@@ -632,7 +630,6 @@ module.exports = React.createClass({
     );
   }
 });
-
 ```
 
 Finally, let's use `updateDestination()` as an `onClick` event handler in `Stars.jsx`:
