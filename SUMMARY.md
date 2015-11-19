@@ -20,6 +20,17 @@
    * Relay
    * Immutable.js
 * Chapter 5: Star Trek Video Game Demo
+    * Setup
+    * Tooling
+    * Hello World
+    * Star Chart
+    * Starship
+    * Ship Info
+    * Navigation
+    * Charting A New Course
+    * Warp Drive Controls
+    * Searching A Star System
+    * Summary
 * Chapter 6: Advanced topics
    * Prop types
    * Testing
