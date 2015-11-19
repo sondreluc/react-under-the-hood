@@ -33,7 +33,7 @@
     * Summary
 * Chapter 6: Advanced topics
    * Prop types
-   * Optimization
+   * Performance Optimization
    * Patterns and Anti-patterns
    * Testing
 
